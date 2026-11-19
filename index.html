@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>v1sion — Aleksandrs Masaitis · V1SION Digital Studio</title>
+  <meta name="description" content="v1sion (Aleksandrs Masaitis), V1SION Digital Studio: art-directed websites for cafés, bakeries and independent places, with online ordering, table booking and an admin panel for the owner." />
+  <meta name="author" content="Aleksandrs Masaitis (v1sion)" />
+  <meta name="keywords" content="v1sion, V1SION, v1sionMC, v1sion0coder, v1sion1coder, Aleksandrs Masaitis, V1SION Digital Studio, café websites, bakery websites, web design" />
+  <link rel="canonical" href="https://v1sion0coder.github.io/" />
+  <meta name="theme-color" content="#0a0a0b" />
+  <meta property="og:title" content="v1sion — V1SION Digital Studio" />
+  <meta property="og:url" content="https://v1sion0coder.github.io/" />
+  <meta property="og:site_name" content="v1sion" />
+  <meta property="og:description" content="Art-directed websites for cafés, bakeries and independent places." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Person",
+        "@id": "https://v1sion0coder.github.io/#person",
+        "name": "Aleksandrs Masaitis",
+        "alternateName": ["v1sion", "V1SION", "v1sionMC", "v1sion0coder", "v1sion1coder"],
+        "jobTitle": "Web designer & developer",
+        "url": "https://v1sion0coder.github.io/",
+        "sameAs": ["https://github.com/v1sion0coder"],
+        "worksFor": { "@id": "https://v1sion0coder.github.io/#studio" }
+      },
+      {
+        "@type": "Organization",
+        "@id": "https://v1sion0coder.github.io/#studio",
+        "name": "V1SION Digital Studio",
+        "alternateName": "v1sion",
+        "url": "https://v1sion0coder.github.io/",
+        "founder": { "@id": "https://v1sion0coder.github.io/#person" }
+      },
+      {
+        "@type": "WebSite",
+        "name": "v1sion",
+        "alternateName": ["V1SION Digital Studio", "Aleksandrs Masaitis"],
+        "url": "https://v1sion0coder.github.io/"
+      }
+    ]
+  }
+  </script>
+</head>
+<body class="is-loading">
+  <a class="skip" href="#main">Skip to content</a>
+
+  <div class="loader" aria-hidden="true">
+    <div class="loader__ring"></div>
+    <span class="loader__txt">V1SION</span>
+  </div>
+
+  <header class="nav">
+    <a class="nav__logo" href="#top" aria-label="V1SION, back to top">V<span>1</span>SION</a>
+    <nav aria-label="Main">
+      <ul class="nav__links">
+        <li><a href="#services">Services</a></li>
+        <li><a href="#work">Work</a></li>
+        <li><a href="#now">Now</a></li>
+        <li><a href="#contact" class="nav__cta">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div class="stage" aria-hidden="true">
+    <canvas id="gl"></canvas>
+    <div class="stage__fallback">
+      <svg viewBox="-100 -100 200 200" class="aperture-svg">
+        <defs>
+          <radialGradient id="core" cx="0" cy="0" r="40" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#ffb08a" />
+            <stop offset=".45" stop-color="#ff4d1a" />
+            <stop offset="1" stop-color="#ff4d1a" stop-opacity="0" />
+          </radialGradient>
+        </defs>
+        <circle r="40" fill="url(#core)" />
+        <g class="aperture-svg__blades" fill="#1c1c1f" stroke="#3a3a40" stroke-width=".6"></g>
+        <circle r="78" fill="none" stroke="#2a2a2e" stroke-width="1" />
+      </svg>
+    </div>
+    <div class="stage__grain"></div>
+  </div>
+
+  <main id="main">
+    <section class="hero" id="top" aria-labelledby="hero-title">
+      <p class="hero__kicker mono"><span class="dot"></span> Digital studio — Baltics &amp; Nordics</p>
+      <h1 class="hero__title" id="hero-title">
+        <span class="line"><span>V1SION</span></span>
+      </h1>
+      <div class="hero__foot">
+        <p class="hero__lead">Websites with a point of view for cafés, bakeries and independent places. Designed from scratch, built to take orders.</p>
+        <p class="hero__scroll mono">Scroll <span aria-hidden="true">↓</span></p>
+      </div>
+    </section>
+
+    <section class="manifesto" aria-label="Approach">
+      <p class="manifesto__text reveal-words">No templates. Every place has its own smell, its own sound, its own regulars. Its website should feel like walking through its door.</p>
+    </section>
+
+    <section class="services" id="services" aria-labelledby="services-title">
+      <div class="section-head">
+        <p class="mono">(01)</p>
+        <h2 id="services-title">What I do</h2>
+      </div>
+      <ol class="svc">
+        <li class="svc__item">
+          <span class="svc__n mono">01</span>
+          <h3>Art direction &amp; design</h3>
+          <p>A visual world made for one place only: type, colour, motion and 3D that tell its story. Never a template.</p>
+        </li>
+        <li class="svc__item">
+          <span class="svc__n mono">02</span>
+          <h3>Online orders &amp; pre&#8209;orders</h3>
+          <p>Cakes, pastries and boxes ordered ahead, with pickup times and daily limits the kitchen can actually keep.</p>
+        </li>
+        <li class="svc__item">
+          <span class="svc__n mono">03</span>
+          <h3>Table booking</h3>
+          <p>Guests book in a few taps and manage their own booking. No phone tag, fewer no&#8209;shows.</p>
+        </li>
+        <li class="svc__item">
+          <span class="svc__n mono">04</span>
+          <h3>Owner admin panel</h3>
+          <p>Orders, bookings, menu and opening hours in one place. Staff roles and two-factor login built in.</p>
+        </li>
+        <li class="svc__item">
+          <span class="svc__n mono">05</span>
+          <h3>Phone-first, fast &amp; secure</h3>
+          <p>Most guests arrive on a phone, so that is where it is designed first. Quick to load, careful with data.</p>
+        </li>
+        <li class="svc__item">
+          <span class="svc__n mono">06</span>
+          <h3>Bilingual from day one</h3>
+          <p>Local language and English side by side, for regulars and visitors alike.</p>
+        </li>
+      </ol>
+    </section>
+
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee__track">
+        <span>Cafés</span><i>✳</i><span>Bakeries</span><i>✳</i><span>Patisseries</span><i>✳</i><span>Coffee bars</span><i>✳</i><span>Independent places</span><i>✳</i>
+        <span>Cafés</span><i>✳</i><span>Bakeries</span><i>✳</i><span>Patisseries</span><i>✳</i><span>Coffee bars</span><i>✳</i><span>Independent places</span><i>✳</i>
+      </div>
+    </div>
+
+    <section class="work" id="work" aria-labelledby="work-title">
+      <div class="section-head">
+        <p class="mono">(02)</p>
+        <h2 id="work-title">Selected work</h2>
+      </div>
+
+      <article class="case" style="--c1:#e7b45a; --c2:#7a3b1d; --bg:#1a120c">
+        <div class="case__art case__art--layers" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div class="case__body">
+          <p class="case__meta mono">Riga · Concept · 2026</p>
+          <h3 class="case__title">Layers</h3>
+          <p class="case__sub">Honey-cake &amp; pastry house</p>
+          <p>A slice of cake, built in real-time 3D, opens into its layers as you scroll, and every layer becomes a chapter of the house. Behind it: cake pre-orders with pickup windows and daily capacity, and a bake list for the kitchen.</p>
+          <ul class="tags mono"><li>3D hero</li><li>Pre-orders</li><li>Admin</li><li>LV / EN</li></ul>
+        </div>
+      </article>
+
+      <article class="case case--flip" style="--c1:#f2d27a; --c2:#c4521f; --bg:#17130d">
+        <div class="case__art case__art--grid" aria-hidden="true"><span></span></div>
+        <div class="case__body">
+          <p class="case__meta mono">Tallinn · Concept · 2026</p>
+          <h3 class="case__title">Grid</h3>
+          <p class="case__sub">Neighbourhood waffle café</p>
+          <p>A warm, playful site for a corner café in an old wooden district. Live table booking with private links for guests, and a staff panel with day views, menu and hours editing, and simple stats.</p>
+          <ul class="tags mono"><li>Table booking</li><li>Staff roles</li><li>Stats</li><li>Bilingual</li></ul>
+        </div>
+      </article>
+    </section>
+
+    <section class="now" id="now" aria-labelledby="now-title">
+      <div class="section-head">
+        <p class="mono">(03)</p>
+        <h2 id="now-title">Now making</h2>
+      </div>
+      <div class="now__card">
+        <p class="now__status mono"><span class="pulse"></span> In the oven</p>
+        <h3>A Nordic patisserie, Helsinki</h3>
+        <p>Rye pastries, cinnamon buns and layer cakes made to order. Its own art direction is being shaped right now. More soon.</p>
+      </div>
+      <p class="now__note">Taking on a small number of new places for 2027.</p>
+    </section>
+
+    <section class="contact" id="contact" aria-labelledby="contact-title">
+      <p class="mono">(04) Contact</p>
+      <h2 class="contact__title" id="contact-title">Got a place<br />with a story?</h2>
+      <a class="btn" href="https://github.com/v1sion0coder" target="_blank" rel="noopener">
+        <span>Find me on GitHub</span><span aria-hidden="true">↗</span>
+      </a>
+    </section>
+  </main>
+
+  <footer class="foot mono">
+    <span>© 2026 V1SION Digital Studio · v1sion (Aleksandrs Masaitis) · aka v1sionMC</span>
+    <a href="#top">Back to top ↑</a>
+  </footer>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
