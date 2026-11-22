@@ -266,3 +266,7 @@ main { position: relative; z-index: 1; }
 @keyframes spinw { to { transform: rotate(360deg); } }
 .tags { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0; margin: 24px 0 0; }
 .tags li { border: 1px solid var(--line); border-radius: 99px; padding: 6px 12px; color: var(--bone); font-size: 11px; }
+
+/* hide the scrollbar, keep scrolling */
+html { scrollbar-width: none; }
+html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; }

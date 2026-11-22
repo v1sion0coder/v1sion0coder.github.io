@@ -83,50 +83,114 @@ export function createScene(canvas, { reducedMotion = false } = {}) {
   rig.add(lens);
 
   // ---------- Core (the "eye") ----------
+  const NOISE = /* glsl */ `
+    float h21(vec2 p){ p = fract(p*vec2(123.34, 456.21)); p += dot(p, p+45.32); return fract(p.x*p.y); }
+    float vnoise(vec2 p){ vec2 i=floor(p), f=fract(p); f=f*f*(3.0-2.0*f);
+      return mix(mix(h21(i), h21(i+vec2(1,0)), f.x), mix(h21(i+vec2(0,1)), h21(i+vec2(1,1)), f.x), f.y); }
+    float fbm(vec2 p){ float v=0.0, a=0.5; for(int i=0;i<5;i++){ v+=a*vnoise(p); p*=2.03; a*=0.5; } return v; }`;
   const coreMat = new ShaderMaterial({
     uniforms: { uTime: { value: 0 }, uOpen: { value: 0 } },
     vertexShader: /* glsl */ `
-      varying vec3 vN; varying vec3 vP; uniform float uTime;
+      varying vec3 vN; varying vec3 vP; varying vec3 vView;
       void main(){
         vN = normalize(normalMatrix * normal);
-        vec3 p = position;
-        float w = sin(p.x*3.0 + uTime*1.3) * sin(p.y*3.4 - uTime) * 0.04;
-        p += normal * w;
-        vP = p;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(p,1.0);
+        vP = position;
+        vec4 mv = modelViewMatrix * vec4(position, 1.0);
+        vView = normalize(-mv.xyz);
+        gl_Position = projectionMatrix * mv;
       }`,
     fragmentShader: /* glsl */ `
-      varying vec3 vN; varying vec3 vP; uniform float uTime; uniform float uOpen;
+      varying vec3 vN; varying vec3 vP; varying vec3 vView;
+      uniform float uTime; uniform float uOpen;
+      ${NOISE}
       void main(){
-        float f = pow(1.0 - abs(vN.z), 2.2);
-        float bands = 0.5 + 0.5*sin(length(vP.xy)*14.0 - uTime*2.2);
-        vec3 hot = vec3(1.0, 0.30, 0.10);
-        vec3 pale = vec3(1.0, 0.78, 0.62);
-        vec3 col = mix(pale, hot, smoothstep(0.0, 0.9, length(vP.xy)));
-        col += hot * bands * 0.25;
-        col = mix(col, vec3(0.06), f*0.85);
-        float pupil = smoothstep(0.30, 0.26, length(vP.xy)) * (0.85 - uOpen*0.4);
-        col = mix(col, vec3(0.02), pupil);
+        vec2 q = vP.xy / 1.6;                 // -1..1 across the iris
+        float r = length(q);
+        float a = atan(q.y, q.x);
+        float pupilR = mix(0.30, 0.17, uOpen) + sin(uTime*0.9)*0.008;
+        // radial fibres + crypts
+        float fib = fbm(vec2(a*9.0, r*3.0 - uTime*0.05));
+        float fib2 = fbm(vec2(a*26.0 + fib*2.0, r*10.0));
+        float streak = pow(fib2, 1.6);
+        vec3 deep = vec3(0.55, 0.08, 0.02);
+        vec3 hot = vec3(1.0, 0.33, 0.08);
+        vec3 gold = vec3(1.0, 0.72, 0.38);
+        float t = smoothstep(pupilR, 0.95, r);
+        vec3 col = mix(gold, hot, smoothstep(0.0, 0.55, t));
+        col = mix(col, deep, smoothstep(0.55, 1.0, t));
+        col *= 0.55 + 0.9*streak;
+        // collarette ring near the pupil, glowing
+        float coll = exp(-pow((r - pupilR*1.7)/0.05, 2.0));
+        col += gold * coll * (0.6 + 0.4*fib);
+        // pulsing rings
+        col += hot * 0.12 * (0.5+0.5*sin(r*40.0 - uTime*2.4)) * (1.0 - t);
+        // dark limbal ring at the edge
+        col *= 1.0 - smoothstep(0.82, 0.98, r) * 0.85;
+        // pupil with soft edge and inner depth
+        float pup = smoothstep(pupilR + 0.015, pupilR - 0.01, r);
+        vec3 pupCol = vec3(0.012, 0.008, 0.01) + hot * 0.06 * smoothstep(0.0, pupilR, r);
+        col = mix(col, pupCol, pup);
+        // fresnel rim + specular glints
+        float fr = pow(1.0 - max(dot(vN, vView), 0.0), 2.5);
+        col = mix(col, vec3(0.03), fr * 0.9);
+        float spec = smoothstep(0.06, 0.0, length(q - vec2(-0.32, 0.36))) + 0.5*smoothstep(0.025, 0.0, length(q - vec2(0.22, -0.18)));
+        col += vec3(1.0, 0.95, 0.9) * spec;
         gl_FragColor = vec4(col, 1.0);
       }`,
   });
-  const core = new Mesh(new SphereGeometry(1.6, isSmall ? 48 : 72, isSmall ? 32 : 48), coreMat);
+  const core = new Mesh(new SphereGeometry(1.6, isSmall ? 64 : 96, isSmall ? 40 : 64), coreMat);
   core.position.z = -1.6;
   rig.add(core);
 
-  // ---------- Dust ----------
-  const count = isSmall ? 260 : 700;
-  const pos = new Float32Array(count * 3);
+  // ---------- Stars ----------
+  const count = isSmall ? 1400 : 4200;
+  const pos = new Float32Array(count * 3), size = new Float32Array(count), phase = new Float32Array(count), tint = new Float32Array(count * 3);
+  const palette = [[1, 0.97, 0.92], [1, 0.82, 0.62], [0.78, 0.86, 1], [1, 0.55, 0.32]];
   for (let i = 0; i < count; i++) {
-    const r = 6 + Math.random() * 16;
-    const t = Math.random() * Math.PI * 2;
-    pos[i * 3] = Math.cos(t) * r;
-    pos[i * 3 + 1] = (Math.random() - 0.5) * 22;
-    pos[i * 3 + 2] = -12 + Math.random() * 18;
+    const r = 5 + Math.pow(Math.random(), 0.7) * 26;
+    const th = Math.random() * Math.PI * 2, ph = Math.acos(2 * Math.random() - 1);
+    pos[i * 3] = Math.sin(ph) * Math.cos(th) * r;
+    pos[i * 3 + 1] = Math.cos(ph) * r * 0.75;
+    pos[i * 3 + 2] = -14 + Math.sin(ph) * Math.sin(th) * r * 0.6;
+    const big = Math.random() < 0.025;
+    size[i] = big ? 5 + Math.random() * 6 : 0.8 + Math.pow(Math.random(), 3) * 3.2;
+    phase[i] = Math.random() * 6.283;
+    const c = palette[Math.random() < 0.7 ? 0 : 1 + Math.floor(Math.random() * 3)];
+    tint.set(c, i * 3);
   }
   const dustGeo = new BufferGeometry();
   dustGeo.setAttribute("position", new Float32BufferAttribute(pos, 3));
-  const dust = new Points(dustGeo, new PointsMaterial({ color: 0xede8df, size: 0.035, transparent: true, opacity: 0.55, blending: AdditiveBlending, depthWrite: false }));
+  dustGeo.setAttribute("aSize", new Float32BufferAttribute(size, 1));
+  dustGeo.setAttribute("aPhase", new Float32BufferAttribute(phase, 1));
+  dustGeo.setAttribute("aTint", new Float32BufferAttribute(tint, 3));
+  const starMat = new ShaderMaterial({
+    transparent: true, depthWrite: false, blending: AdditiveBlending,
+    uniforms: { uTime: { value: 0 }, uPx: { value: renderer.getPixelRatio() } },
+    vertexShader: /* glsl */ `
+      attribute float aSize; attribute float aPhase; attribute vec3 aTint;
+      uniform float uTime; uniform float uPx;
+      varying vec3 vTint; varying float vTw; varying float vBig;
+      void main(){
+        vec4 mv = modelViewMatrix * vec4(position, 1.0);
+        vTw = 0.55 + 0.45 * sin(uTime * (0.6 + fract(aPhase) * 2.2) + aPhase * 3.0);
+        vTint = aTint; vBig = step(4.5, aSize);
+        gl_PointSize = aSize * uPx * (70.0 / -mv.z) * (0.8 + 0.4 * vTw);
+        gl_Position = projectionMatrix * mv;
+      }`,
+    fragmentShader: /* glsl */ `
+      varying vec3 vTint; varying float vTw; varying float vBig;
+      void main(){
+        vec2 p = gl_PointCoord - 0.5;
+        float d = length(p);
+        float core = smoothstep(0.5, 0.0, d);
+        float glow = exp(-d * 9.0);
+        float cross = vBig * (exp(-abs(p.x) * 60.0) + exp(-abs(p.y) * 60.0)) * smoothstep(0.5, 0.0, d);
+        float a = (pow(core, 3.0) * 0.9 + glow * 0.5 + cross * 0.8) * vTw;
+        if (a < 0.01) discard;
+        gl_FragColor = vec4(vTint * a, a);
+      }`,
+  });
+  const dust = new Points(dustGeo, starMat);
   scene.add(dust);
 
   // ---------- State ----------
@@ -160,7 +224,7 @@ export function createScene(canvas, { reducedMotion = false } = {}) {
     const p = state.progress;
     const e = state.end;
     const breathe = reducedMotion ? 0 : Math.sin(t * 0.8) * 0.04;
-    const open = MathUtils.clamp(0.34 + p * 0.66 - e * 0.55 + breathe, 0, 1);
+    const open = MathUtils.clamp(0.52 + p * 0.48 - e * 0.55 + breathe, 0, 1);
     applyOpen(open);
 
     aperture.rotation.z = (reducedMotion ? 0 : t * 0.05) + p * 1.2;
@@ -172,6 +236,7 @@ export function createScene(canvas, { reducedMotion = false } = {}) {
     camera.position.z = 18 - p * 6.5 + e * 3;
     dust.rotation.y = t * 0.015;
     coreMat.uniforms.uTime.value = t;
+    starMat.uniforms.uTime.value = t;
     rim.intensity = 110 + Math.sin(t * 1.6) * 20 + open * 60;
 
     renderer.render(scene, camera);
