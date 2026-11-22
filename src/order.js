@@ -31,11 +31,13 @@ function newOrder() {
   $("#new").hidden = false;
   const log = $("#log"), input = $("#chat-input"), form = $("#chat-form");
   const convo = [];
-  let brief = null, busy = false;
+  let brief = null, busy = false, lastSent = 0;
   bubble(log, "bot", "Hi! I'm the Brief helper. Tell me about your place, or ask anything about what v1sion makes.");
 
   async function send(text) {
-    if (busy || !text.trim()) return;
+    if (busy || !text.trim() || form.dataset.closed) return;
+    if (Date.now() - lastSent < 2500) return;
+    lastSent = Date.now();
     busy = true;
     $("#chips").hidden = true;
     convo.push({ role: "user", content: text.trim() });
@@ -45,9 +47,11 @@ function newOrder() {
     try {
       const out = await call("/helper", { messages: convo });
       typing.remove();
-      convo.push({ role: "assistant", content: out.reply });
+      if (out.junk) convo.pop(); else convo.push({ role: "assistant", content: out.reply });
+      if (out.junk) convo.push({ role: "user", content: text.trim() }, { role: "assistant", content: out.reply });
       bubble(log, "bot", out.reply);
       if (out.brief) showBrief(out.brief);
+      if (out.done) { form.dataset.closed = "1"; input.disabled = true; input.placeholder = "Chat finished: please use the brief below"; showBrief(brief || {}); }
     } catch (err) {
       typing.remove();
       convo.pop();
