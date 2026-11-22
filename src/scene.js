@@ -1,8 +1,8 @@
 import {
-  WebGLRenderer, Scene, PerspectiveCamera, Group, Shape, ExtrudeGeometry, Mesh,
+  WebGLRenderer, Scene, PerspectiveCamera, Group, Mesh, TorusKnotGeometry, CapsuleGeometry, IcosahedronGeometry,
   MeshStandardMaterial, MeshPhysicalMaterial, TorusGeometry, SphereGeometry, ShaderMaterial,
   PointLight, DirectionalLight, AmbientLight, PMREMGenerator, BufferGeometry, Float32BufferAttribute,
-  Points, PointsMaterial, Color, ACESFilmicToneMapping, SRGBColorSpace, AdditiveBlending, MathUtils,
+  Points, Color, ACESFilmicToneMapping, SRGBColorSpace, AdditiveBlending, MathUtils,
 } from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 
@@ -25,122 +25,47 @@ export function createScene(canvas, { reducedMotion = false } = {}) {
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
   pmrem.dispose();
 
-  scene.add(new AmbientLight(0xffffff, 0.15));
-  const key = new DirectionalLight(0xfff1e0, 1.6);
+  scene.add(new AmbientLight(0xffffff, 0.25));
+  const key = new DirectionalLight(0xfff1e0, 2.2);
   key.position.set(-6, 8, 10);
   scene.add(key);
-  const rim = new PointLight(HOT, 120, 30, 1.6);
-  rim.position.set(0, 0, -2.5);
-  scene.add(rim);
+  const warm = new PointLight(0xff6a2b, 260, 40, 1.4);
+  warm.position.set(6, -3, 6);
+  scene.add(warm);
+  const cool = new PointLight(0x8a7dff, 180, 40, 1.4);
+  cool.position.set(-7, 4, 2);
+  scene.add(cool);
 
-  // ---------- Aperture ----------
+  // ---------- Sculpture: a glossy, iridescent knot with floating shapes ----------
   const rig = new Group();
   scene.add(rig);
-  const aperture = new Group();
-  rig.add(aperture);
 
-  const R = 4;
-  const N = 9;
-  const blade = new Shape();
-  blade.moveTo(0.35, -0.55);
-  blade.quadraticCurveTo(-1.5, -1.05, -3.55, 0.25);
-  blade.quadraticCurveTo(-1.6, 0.35, 0.35, 1.75);
-  blade.lineTo(0.35, -0.55);
-  const bladeGeo = new ExtrudeGeometry(blade, {
-    depth: 0.06, bevelEnabled: true, bevelThickness: 0.03, bevelSize: 0.03, bevelSegments: 2, curveSegments: isSmall ? 14 : 24,
+  const knotMat = new MeshPhysicalMaterial({
+    color: 0xffb08a, metalness: 0.35, roughness: 0.12, clearcoat: 1, clearcoatRoughness: 0.05,
+    iridescence: 1, iridescenceIOR: 1.35, iridescenceThicknessMinimum: 180, iridescenceThicknessMaximum: 650, sheen: 0.6, sheenColor: new Color(0xffd2b8), envMapIntensity: 1.4,
   });
-  const bladeMat = new MeshStandardMaterial({ color: 0x1b1b1f, metalness: 1, roughness: 0.32, envMapIntensity: 1.1 });
-  const blades = [];
-  for (let i = 0; i < N; i++) {
-    const a = (i / N) * Math.PI * 2;
-    const holder = new Group();
-    holder.position.set(Math.cos(a) * R, Math.sin(a) * R, i * 0.012);
-    holder.rotation.z = a;
-    const m = new Mesh(bladeGeo, bladeMat);
-    holder.add(m);
-    aperture.add(holder);
-    blades.push(m);
-  }
+  const knot = new Mesh(new TorusKnotGeometry(2.2, 0.72, isSmall ? 220 : 360, isSmall ? 32 : 56, 2, 3), knotMat);
+  rig.add(knot);
 
-  const housingMat = new MeshStandardMaterial({ color: 0x141416, metalness: 1, roughness: 0.22 });
-  const housing = new Mesh(new TorusGeometry(R + 0.75, 0.42, isSmall ? 20 : 36, isSmall ? 90 : 160), housingMat);
-  housing.position.z = 0.05;
-  aperture.add(housing);
+  const chrome = new MeshPhysicalMaterial({ color: 0xffffff, metalness: 1, roughness: 0.08, envMapIntensity: 1.6 });
+  const orange = new MeshPhysicalMaterial({ color: 0xff5a1f, metalness: 0.1, roughness: 0.25, clearcoat: 1 });
+  const cream = new MeshPhysicalMaterial({ color: 0xf3e9dc, metalness: 0, roughness: 0.35, clearcoat: 0.6, sheen: 1, sheenColor: new Color(0xffffff) });
+  const glass = new MeshPhysicalMaterial({ color: 0xffffff, metalness: 0, roughness: 0.02, iridescence: 1, transparent: true, opacity: 0.35, clearcoat: 1, envMapIntensity: 2 });
+  const seg = isSmall ? 32 : 48;
+  const floaters = [
+    { m: new Mesh(new SphereGeometry(0.55, seg, seg), orange), r: 4.4, a: 0.3, y: 1.6, s: 0.5 },
+    { m: new Mesh(new SphereGeometry(0.32, seg, seg), chrome), r: 3.8, a: 2.2, y: -2.1, s: 0.7 },
+    { m: new Mesh(new TorusGeometry(0.5, 0.18, 24, 64), cream), r: 4.8, a: 3.6, y: 0.4, s: 0.4 },
+    { m: new Mesh(new CapsuleGeometry(0.25, 0.7, 8, 24), glass), r: 4.2, a: 5.0, y: 2.3, s: 0.6 },
+    { m: new Mesh(new IcosahedronGeometry(0.42, 0), chrome), r: 5.0, a: 1.3, y: -1.2, s: 0.45 },
+    { m: new Mesh(new SphereGeometry(0.2, seg, seg), cream), r: 3.4, a: 4.4, y: -0.6, s: 0.8 },
+  ];
+  floaters.forEach((f) => rig.add(f.m));
 
-  const ringMat = new MeshStandardMaterial({ color: 0x2a2a2e, metalness: 1, roughness: 0.15 });
-  const ring2 = new Mesh(new TorusGeometry(R + 1.75, 0.025, 8, 200), ringMat);
-  const ring3 = new Mesh(new TorusGeometry(R + 2.35, 0.012, 8, 220), new MeshStandardMaterial({ color: HOT, emissive: HOT, emissiveIntensity: 1.4 }));
-  ring3.scale.set(1, 1, 1);
-  rig.add(ring2, ring3);
-
-  // glass lens floating in front
-  const lens = new Mesh(
-    new SphereGeometry(1, isSmall ? 32 : 48, isSmall ? 16 : 24),
-    new MeshPhysicalMaterial({ color: 0xffffff, metalness: 0, roughness: 0.05, transmission: 0, transparent: true, opacity: 0.045, clearcoat: 1, envMapIntensity: 2 }),
-  );
-  lens.scale.set(R - 0.2, R - 0.2, 0.35);
-  lens.position.z = 0.6;
-  rig.add(lens);
-
-  // ---------- Core (the "eye") ----------
-  const NOISE = /* glsl */ `
-    float h21(vec2 p){ p = fract(p*vec2(123.34, 456.21)); p += dot(p, p+45.32); return fract(p.x*p.y); }
-    float vnoise(vec2 p){ vec2 i=floor(p), f=fract(p); f=f*f*(3.0-2.0*f);
-      return mix(mix(h21(i), h21(i+vec2(1,0)), f.x), mix(h21(i+vec2(0,1)), h21(i+vec2(1,1)), f.x), f.y); }
-    float fbm(vec2 p){ float v=0.0, a=0.5; for(int i=0;i<5;i++){ v+=a*vnoise(p); p*=2.03; a*=0.5; } return v; }`;
-  const coreMat = new ShaderMaterial({
-    uniforms: { uTime: { value: 0 }, uOpen: { value: 0 } },
-    vertexShader: /* glsl */ `
-      varying vec3 vN; varying vec3 vP; varying vec3 vView;
-      void main(){
-        vN = normalize(normalMatrix * normal);
-        vP = position;
-        vec4 mv = modelViewMatrix * vec4(position, 1.0);
-        vView = normalize(-mv.xyz);
-        gl_Position = projectionMatrix * mv;
-      }`,
-    fragmentShader: /* glsl */ `
-      varying vec3 vN; varying vec3 vP; varying vec3 vView;
-      uniform float uTime; uniform float uOpen;
-      ${NOISE}
-      void main(){
-        vec2 q = vP.xy / 1.6;                 // -1..1 across the iris
-        float r = length(q);
-        float a = atan(q.y, q.x);
-        float pupilR = mix(0.30, 0.17, uOpen) + sin(uTime*0.9)*0.008;
-        // radial fibres + crypts
-        float fib = fbm(vec2(a*9.0, r*3.0 - uTime*0.05));
-        float fib2 = fbm(vec2(a*26.0 + fib*2.0, r*10.0));
-        float streak = pow(fib2, 1.6);
-        vec3 deep = vec3(0.55, 0.08, 0.02);
-        vec3 hot = vec3(1.0, 0.33, 0.08);
-        vec3 gold = vec3(1.0, 0.72, 0.38);
-        float t = smoothstep(pupilR, 0.95, r);
-        vec3 col = mix(gold, hot, smoothstep(0.0, 0.55, t));
-        col = mix(col, deep, smoothstep(0.55, 1.0, t));
-        col *= 0.55 + 0.9*streak;
-        // collarette ring near the pupil, glowing
-        float coll = exp(-pow((r - pupilR*1.7)/0.05, 2.0));
-        col += gold * coll * (0.6 + 0.4*fib);
-        // pulsing rings
-        col += hot * 0.12 * (0.5+0.5*sin(r*40.0 - uTime*2.4)) * (1.0 - t);
-        // dark limbal ring at the edge
-        col *= 1.0 - smoothstep(0.82, 0.98, r) * 0.85;
-        // pupil with soft edge and inner depth
-        float pup = smoothstep(pupilR + 0.015, pupilR - 0.01, r);
-        vec3 pupCol = vec3(0.012, 0.008, 0.01) + hot * 0.06 * smoothstep(0.0, pupilR, r);
-        col = mix(col, pupCol, pup);
-        // fresnel rim + specular glints
-        float fr = pow(1.0 - max(dot(vN, vView), 0.0), 2.5);
-        col = mix(col, vec3(0.03), fr * 0.9);
-        float spec = smoothstep(0.06, 0.0, length(q - vec2(-0.32, 0.36))) + 0.5*smoothstep(0.025, 0.0, length(q - vec2(0.22, -0.18)));
-        col += vec3(1.0, 0.95, 0.9) * spec;
-        gl_FragColor = vec4(col, 1.0);
-      }`,
-  });
-  const core = new Mesh(new SphereGeometry(1.6, isSmall ? 64 : 96, isSmall ? 40 : 64), coreMat);
-  core.position.z = -1.6;
-  rig.add(core);
+  // thin orbit ring for the brand accent
+  const ring = new Mesh(new TorusGeometry(5.6, 0.014, 8, 240), new MeshStandardMaterial({ color: HOT, emissive: HOT, emissiveIntensity: 1.6 }));
+  ring.rotation.x = 1.2;
+  rig.add(ring);
 
   // ---------- Stars ----------
   const count = isSmall ? 1400 : 4200;
@@ -203,17 +128,10 @@ export function createScene(canvas, { reducedMotion = false } = {}) {
     camera.updateProjectionMatrix();
     // keep the aperture comfortably inside the frame on portrait phones
     const portrait = w / h < 0.8;
-    rig.scale.setScalar(portrait ? 0.5 : 0.74);
-    rig.position.set(portrait ? 0 : 3.1, portrait ? 1.7 : 0.7, 0);
+    rig.scale.setScalar(portrait ? 0.55 : 0.8);
+    rig.position.set(portrait ? 0 : 3.3, portrait ? 2.0 : 0.5, 0);
   }
   layout();
-
-  function applyOpen(o) {
-    // o: 0 = closed, 1 = wide open
-    const rot = MathUtils.lerp(-0.02, 0.98, o);
-    for (const b of blades) b.rotation.z = rot;
-    coreMat.uniforms.uOpen.value = o;
-  }
 
   let t0 = performance.now();
   function frame(now) {
@@ -223,21 +141,24 @@ export function createScene(canvas, { reducedMotion = false } = {}) {
 
     const p = state.progress;
     const e = state.end;
-    const breathe = reducedMotion ? 0 : Math.sin(t * 0.8) * 0.04;
-    const open = MathUtils.clamp(0.52 + p * 0.48 - e * 0.55 + breathe, 0, 1);
-    applyOpen(open);
-
-    aperture.rotation.z = (reducedMotion ? 0 : t * 0.05) + p * 1.2;
-    ring2.rotation.z = -t * 0.08;
-    ring3.rotation.x = Math.sin(t * 0.3) * 0.2 + 0.25;
-    ring3.rotation.y = Math.cos(t * 0.25) * 0.2;
-    rig.rotation.y = state.mx * 0.35 + p * -0.35 + e * 0.25;
-    rig.rotation.x = -state.my * 0.25 + p * 0.25;
-    camera.position.z = 18 - p * 6.5 + e * 3;
+    const spin = reducedMotion ? 0 : t;
+    knot.rotation.x = spin * 0.12 + p * 1.4;
+    knot.rotation.y = spin * 0.18 + p * 2.0;
+    knot.scale.setScalar(1 + p * 0.25 - e * 0.15 + (reducedMotion ? 0 : Math.sin(t * 0.9) * 0.015));
+    floaters.forEach((f, i) => {
+      const ang = f.a + spin * f.s * 0.35 + p * (1 + i * 0.2);
+      const rad = f.r * (1 + p * 0.35);
+      f.m.position.set(Math.cos(ang) * rad, f.y + Math.sin(spin * f.s + i) * 0.35, Math.sin(ang) * rad * 0.6);
+      f.m.rotation.x = spin * f.s; f.m.rotation.y = spin * f.s * 0.7;
+    });
+    ring.rotation.z = spin * 0.06;
+    ring.rotation.x = 1.2 + Math.sin(spin * 0.3) * 0.1;
+    rig.rotation.y = state.mx * 0.3 + p * -0.3 + e * 0.25;
+    rig.rotation.x = -state.my * 0.2 + p * 0.2;
+    camera.position.z = 18 - p * 5 + e * 3;
     dust.rotation.y = t * 0.015;
-    coreMat.uniforms.uTime.value = t;
     starMat.uniforms.uTime.value = t;
-    rim.intensity = 110 + Math.sin(t * 1.6) * 20 + open * 60;
+    warm.intensity = 240 + Math.sin(t * 1.1) * 40;
 
     renderer.render(scene, camera);
   }
