@@ -130,3 +130,30 @@
   .brief__grid { grid-template-columns: 1fr; }
   .chat__log { height: 55vh; }
 }
+
+/* Rich chat (links, cards, days) */
+.bub strong { font-weight: 700; }
+.bub a.rl { color: inherit; font-weight: 600; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; text-decoration-color: #ff8a5c; }
+.bub--me a.rl { text-decoration-color: #fff; }
+.lcard { display: flex; align-items: center; gap: 12px; margin-top: 10px; padding: 12px 14px; border-radius: 14px; text-decoration: none; color: inherit; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12); white-space: normal; transition: transform .25s var(--ease), border-color .25s; }
+.lcard:hover { transform: translateY(-2px); border-color: #ff8a5c; }
+.lcard__ic { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; background: linear-gradient(135deg, #ff6a2b, #a58bff); color: #fff; font-weight: 800; flex: none; }
+.lcard__tx { display: grid; min-width: 0; } .lcard__tx b { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .lcard__tx small { opacity: .7; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lcard__go { margin-left: auto; font-size: 18px; }
+.day { text-align: center; margin: 4px 0; } .day span { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--mute); background: rgba(255,255,255,.06); padding: 4px 12px; border-radius: 99px; }
+.empty-chat { margin: auto; text-align: center; max-width: 36ch; line-height: 1.6; }
+
+/* Plain-language help */
+.order-page { font-size: 17px; }
+.bub { font-size: 16px; }
+.help { padding: 20px 22px; display: grid; gap: 10px; max-width: 520px; }
+.help p { color: #d8d2c8; font-size: 15px; line-height: 1.6; }
+.help em { font-style: normal; color: var(--bone); }
+.ofaq { display: grid; gap: 8px; max-width: 520px; }
+.ofaq details { border: 1px solid var(--line); border-radius: 14px; padding: 0 16px; background: rgba(255,255,255,.02); }
+.ofaq summary { cursor: pointer; padding: 14px 0; font-weight: 700; list-style: none; display: flex; justify-content: space-between; gap: 10px; }
+.ofaq summary::after { content: "+"; color: var(--hot); font-size: 20px; line-height: 1; }
+.ofaq details[open] summary::after { content: "–"; }
+.ofaq summary::-webkit-details-marker { display: none; }
+.ofaq p { padding: 0 0 14px; color: #cfc9bf; font-size: 15px; line-height: 1.6; }
+@media (max-width: 960px) { .help, .ofaq { max-width: none; } }

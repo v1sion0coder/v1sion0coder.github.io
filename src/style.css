@@ -1,7 +1,7 @@
 :root {
   --ink: #0a0a0b;
   --bone: #ede8df;
-  --mute: #8d8a84;
+  --mute: #a9a59d;
   --line: rgba(237, 232, 223, 0.14);
   --hot: #ff4d1a;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -270,3 +270,23 @@ main { position: relative; z-index: 1; }
 /* hide the scrollbar, keep scrolling */
 html { scrollbar-width: none; }
 html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; }
+
+/* How it works + FAQ (plain language for everyone) */
+.how, .faq { padding: clamp(80px, 14vh, 150px) var(--pad); background: var(--ink); position: relative; z-index: 1; }
+.how__intro { font-size: clamp(19px, 1.8vw, 24px); line-height: 1.5; max-width: 52ch; color: #ddd7cd; margin-bottom: clamp(32px, 6vh, 56px); }
+.how__steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; counter-reset: s; }
+.how__steps li { background: #121214; border: 1px solid var(--line); border-radius: 20px; padding: 26px; display: grid; gap: 12px; align-content: start; }
+.how__n { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: var(--hot); color: #fff; font-weight: 800; font-size: 20px; }
+.how__steps h3 { font-size: 22px; letter-spacing: -0.02em; line-height: 1.15; }
+.how__steps p { color: #cfc9bf; font-size: 16px; line-height: 1.55; }
+.how__cta { margin-top: 36px; }
+.faq__list { display: grid; gap: 10px; max-width: 900px; }
+.faq details { background: #121214; border: 1px solid var(--line); border-radius: 16px; padding: 0 22px; }
+.faq summary { cursor: pointer; list-style: none; padding: 20px 0; font-size: clamp(18px, 1.6vw, 21px); font-weight: 700; display: flex; justify-content: space-between; gap: 16px; }
+.faq summary::after { content: "+"; color: var(--hot); font-size: 26px; line-height: 1; transition: transform .3s var(--ease); }
+.faq details[open] summary::after { transform: rotate(45deg); }
+.faq summary::-webkit-details-marker { display: none; }
+.faq details p { padding: 0 0 20px; color: #cfc9bf; font-size: 17px; line-height: 1.6; max-width: 70ch; }
+.faq details a { color: var(--bone); text-decoration-color: var(--hot); }
+@media (max-width: 1000px) { .how__steps { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 600px) { .how__steps { grid-template-columns: 1fr; } }

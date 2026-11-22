@@ -4,6 +4,7 @@ import "@fontsource/syne/800.css";
 import "@fontsource/jetbrains-mono/400.css";
 import "./style.css";
 import "./order.css";
+import { richHtml } from "./rich.js";
 
 const API = (import.meta.env.VITE_API_URL || "http://localhost:3300").replace(/\/$/, "") + "/api";
 const $ = (s) => document.querySelector(s);
@@ -121,16 +122,15 @@ async function myOrder(token) {
     $("#status-lead").textContent = l;
     $("#mine-status").textContent = (STATUS[o.status] || STATUS.new)[0].replace(".", "") + " · usually replies within 2 working days";
     renderTimeline(o.status);
-    const log = $("#mine-log");
-    log.innerHTML = o.messages.length ? "" : '<p class="mono muted">No messages yet. Ask anything here.</p>';
-    o.messages.forEach((m) => { const b = bubble(log, m.from === "studio" ? "bot" : "me", m.text); const s = document.createElement("time"); s.textContent = (m.from === "studio" ? "v1sion · " : "You · ") + time(m.at); b.appendChild(s); });
+    renderMineThread(o);
     const b = o.brief;
     $("#mine-brief").innerHTML = [["Business", `${b.placeName} ${b.placeType ? "(" + b.placeType + ")" : ""}`], ["City", b.city], ["Needs", (b.needs || []).join(", ")], ["Languages", b.languages], ["When", b.timing], ["Summary", b.summary]]
       .map(([k, v]) => `<dt class="mono">${k}</dt><dd>${esc(v)}</dd>`).join("");
   };
-  const load = async () => { try { render(await call("/orders/" + encodeURIComponent(token))); } catch (e) { $("#status-title").textContent = "Not found."; $("#status-lead").textContent = "This order link doesn't work. Check that you copied the whole link."; } };
+  const load = async () => { try { render(await call("/orders/" + encodeURIComponent(token) + (document.hidden ? "" : "?seen=1"))); } catch (e) { $("#status-title").textContent = "Not found."; $("#status-lead").textContent = "This order link doesn't work. Check that you copied the whole link."; } };
   await load();
-  setInterval(load, 20000);
+  setInterval(load, 8000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) { document.title = baseTitle; load(); } });
   $("#mine-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     const text = $("#mine-input").value.trim(); if (!text) return;
@@ -160,6 +160,39 @@ function renderTimeline(status) {
   }
   const idx = Math.max(0, FLOW.findIndex(([s]) => s === status));
   tl.innerHTML = FLOW.map(([, t, d], i) => `<li class="tl ${i < idx || (i === idx && status === "done") ? "tl--done" : i === idx ? "tl--now" : ""}"><span class="tl__dot">${i < idx || (i === idx && status === "done") ? "✓" : i + 1}</span><span><b>${t}</b><small>${d}</small></span></li>`).join("");
+}
+
+// ---------- Client thread (links, days, seen) ----------
+const baseTitle = document.title;
+let lastSig = "", lastStudioCount = -1;
+function dayLabel(iso) {
+  const d = new Date(iso), t = new Date(); const y = new Date(); y.setDate(t.getDate() - 1);
+  if (d.toDateString() === t.toDateString()) return "Today";
+  if (d.toDateString() === y.toDateString()) return "Yesterday";
+  return d.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" });
+}
+function renderMineThread(o) {
+  const sig = o.messages.map((m) => m.id).join() + "|" + o.adminSeenAt;
+  const studioCount = o.messages.filter((m) => m.from === "studio").length;
+  if (lastStudioCount >= 0 && studioCount > lastStudioCount && document.hidden) document.title = "(1) New message from v1sion";
+  lastStudioCount = studioCount;
+  if (sig === lastSig) return;
+  lastSig = sig;
+  const log = $("#mine-log");
+  const atBottom = log.scrollHeight - log.scrollTop - log.clientHeight < 80;
+  if (!o.messages.length) { log.innerHTML = '<p class="muted empty-chat">No messages yet. You can ask me anything here, for example about prices, timing or ideas. I usually reply within two working days.</p>'; return; }
+  const lastMine = [...o.messages].reverse().find((m) => m.from === "client");
+  let html = "", lastDay = "";
+  o.messages.forEach((m) => {
+    const day = dayLabel(m.at);
+    if (day !== lastDay) { html += `<div class="day"><span>${esc(day)}</span></div>`; lastDay = day; }
+    const tm = new Date(m.at).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
+    const seen = m === lastMine && o.adminSeenAt && o.adminSeenAt >= m.at;
+    html += `<div class="bub bub--${m.from === "studio" ? "bot" : "me"}"><div>${richHtml(m.text)}</div><time>${m.from === "studio" ? "v1sion" : "You"} · ${esc(tm)}${m.from === "client" ? (seen ? " · Seen ✓✓" : " · Sent ✓") : ""}</time></div>`;
+  });
+  log.innerHTML = html;
+  if (atBottom || !renderMineThread.done) log.scrollTop = log.scrollHeight;
+  renderMineThread.done = true;
 }
 
 // Wake the server early (free hosting sleeps when idle).
