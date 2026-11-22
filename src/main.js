@@ -34,30 +34,17 @@ function workReel() {
   const track = document.querySelector(".reel__track");
   if (!track) return;
   const slides = gsap.utils.toArray(".slide");
-  const n = document.getElementById("reel-n");
-  const bar = document.querySelector(".reel__bar i");
-  const mm = gsap.matchMedia();
-  mm.add("(min-width: 861px) and (prefers-reduced-motion: no-preference)", () => {
-    const dist = () => track.scrollWidth - window.innerWidth;
-    const tween = gsap.to(track, {
-      x: () => -dist(), ease: "none",
-      scrollTrigger: {
-        trigger: ".reel", start: "top top", end: () => "+=" + dist(), pin: true, scrub: 0.6, invalidateOnRefresh: true, anticipatePin: 1,
-        onUpdate: (st) => {
-          if (bar) bar.style.transform = `scaleX(${st.progress})`;
-          if (n) n.textContent = String(Math.min(slides.length, 1 + Math.round(st.progress * (slides.length - 1)))).padStart(2, "0");
-        },
-      },
-    });
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     slides.forEach((s) => {
-      const info = s.querySelector(".slide__info, .yours");
-      if (info) gsap.from(info, { opacity: 0, x: 80, ease: "none", scrollTrigger: { trigger: s, containerAnimation: tween, start: "left 85%", end: "left 45%", scrub: true } });
+      const stage = s.querySelector(".shot, .yours"), info = s.querySelector(".slide__info");
+      const tl = gsap.timeline({ scrollTrigger: { trigger: s, start: "top 80%" } });
+      if (stage) tl.from(stage, { opacity: 0, y: 70, scale: 0.96, duration: 1.2, ease: "expo.out" });
+      if (info) tl.from(info.children, { opacity: 0, y: 30, duration: 0.9, ease: "expo.out", stagger: 0.07 }, "-=0.9");
     });
-    return () => {};
-  });
+  }
   // mouse tilt on devices
   if (window.matchMedia("(hover: hover)").matches) {
-    document.querySelectorAll(".stage").forEach((st) => {
+    document.querySelectorAll(".shot").forEach((st) => {
       st.addEventListener("pointermove", (e) => {
         const r = st.getBoundingClientRect();
         const px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
