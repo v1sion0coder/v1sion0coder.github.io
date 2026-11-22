@@ -46,8 +46,8 @@
     ]
   }
   </script>
-  <script type="module" crossorigin src="/assets/index-Dbw4hQOr.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-COAINa0q.css">
+  <script type="module" crossorigin src="/assets/index-BIHCgL0r.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-CCLkWJ-t.css">
 </head>
 <body class="is-loading">
   <a class="skip" href="#main">Skip to content</a>
@@ -154,31 +154,70 @@
       <div class="section-head">
         <p class="mono">(02)</p>
         <h2 id="work-title">Selected work</h2>
+        <p class="mono work__hint">Index — open a project</p>
       </div>
 
-      <article class="case" style="--c1:#e7b45a; --c2:#7a3b1d; --bg:#1a120c">
-        <div class="case__art case__art--layers" aria-hidden="true">
-          <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-        </div>
-        <div class="case__body">
-          <p class="case__meta mono">Riga · Concept · 2026</p>
-          <h3 class="case__title">Layers</h3>
-          <p class="case__sub">Honey-cake &amp; pastry house</p>
-          <p>A slice of cake, built in real-time 3D, opens into its layers as you scroll, and every layer becomes a chapter of the house. Behind it: cake pre-orders with pickup windows and daily capacity, and a bake list for the kitchen.</p>
-          <ul class="tags mono"><li>3D hero</li><li>Pre-orders</li><li>Admin</li><li>LV / EN</li></ul>
-        </div>
-      </article>
-
-      <article class="case case--flip" style="--c1:#f2d27a; --c2:#c4521f; --bg:#17130d">
-        <div class="case__art case__art--grid" aria-hidden="true"><span></span></div>
-        <div class="case__body">
-          <p class="case__meta mono">Tallinn · Concept · 2026</p>
-          <h3 class="case__title">Grid</h3>
-          <p class="case__sub">Neighbourhood waffle café</p>
-          <p>A warm, playful site for a corner café in an old wooden district. Live table booking with private links for guests, and a staff panel with day views, menu and hours editing, and simple stats.</p>
-          <ul class="tags mono"><li>Table booking</li><li>Staff roles</li><li>Stats</li><li>Bilingual</li></ul>
-        </div>
-      </article>
+      <ol class="idx">
+        <li class="idx__row" style="--c1:#e7b45a; --c2:#7a3b1d; --bg:#1a120c">
+          <button class="idx__head" aria-expanded="false" aria-controls="p-layers" data-preview="layers">
+            <span class="idx__n mono">01</span>
+            <span class="idx__t">Layers</span>
+            <span class="idx__k">Honey-cake &amp; pastry house</span>
+            <span class="idx__c mono">Riga</span>
+            <span class="idx__y mono">2026</span>
+            <span class="idx__x" aria-hidden="true"></span>
+          </button>
+          <div class="idx__panel" id="p-layers" hidden>
+            <div class="idx__inner">
+              <div class="mock mock--layers" aria-hidden="true"><i></i><b></b><b></b><b></b><b></b><b></b><b></b></div>
+              <div class="idx__text">
+                <p class="idx__lead">A slice of cake, built in real-time 3D, opens into its layers as you scroll. Every layer becomes a chapter of the house.</p>
+                <dl class="idx__facts">
+                  <div><dt class="mono">Signature</dt><dd>Exploded 3D cake slice</dd></div>
+                  <div><dt class="mono">Orders</dt><dd>Cake pre-orders with pickup windows &amp; daily capacity</dd></div>
+                  <div><dt class="mono">Kitchen</dt><dd>Owner panel with a daily bake list</dd></div>
+                  <div><dt class="mono">Languages</dt><dd>Latvian / English</dd></div>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </li>
+        <li class="idx__row" style="--c1:#f2d27a; --c2:#c4521f; --bg:#17130d">
+          <button class="idx__head" aria-expanded="false" aria-controls="p-grid" data-preview="grid">
+            <span class="idx__n mono">02</span>
+            <span class="idx__t">Grid</span>
+            <span class="idx__k">Neighbourhood waffle café</span>
+            <span class="idx__c mono">Tallinn</span>
+            <span class="idx__y mono">2026</span>
+            <span class="idx__x" aria-hidden="true"></span>
+          </button>
+          <div class="idx__panel" id="p-grid" hidden>
+            <div class="idx__inner">
+              <div class="mock mock--grid" aria-hidden="true"><i></i><span></span></div>
+              <div class="idx__text">
+                <p class="idx__lead">A warm, playful site for a corner café in an old wooden district, where booking a table takes three taps.</p>
+                <dl class="idx__facts">
+                  <div><dt class="mono">Signature</dt><dd>Live 3D waffle hero</dd></div>
+                  <div><dt class="mono">Booking</dt><dd>Live tables, private links for guests to change or cancel</dd></div>
+                  <div><dt class="mono">Staff</dt><dd>Day views, menu &amp; hours editing, simple stats</dd></div>
+                  <div><dt class="mono">Languages</dt><dd>Bilingual</dd></div>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </li>
+        <li class="idx__row idx__row--slot">
+          <a class="idx__head" href="#contact">
+            <span class="idx__n mono">03</span>
+            <span class="idx__t">Your place</span>
+            <span class="idx__k">Open for 2027</span>
+            <span class="idx__c mono">Anywhere</span>
+            <span class="idx__y mono">2027</span>
+            <span class="idx__x idx__x--arrow" aria-hidden="true">↗</span>
+          </a>
+        </li>
+      </ol>
+      <div class="peek" aria-hidden="true"><div class="mock mock--layers peek__m" data-m="layers"><i></i><b></b><b></b><b></b><b></b><b></b><b></b></div><div class="mock mock--grid peek__m" data-m="grid"><i></i><span></span></div></div>
     </section>
 
     <section class="now" id="now" aria-labelledby="now-title">
@@ -207,6 +246,6 @@
     <span>© 2026 V1SION Digital Studio · v1sion (Aleksandrs Masaitis) · aka v1sionMC</span>
     <a href="#top">Back to top ↑</a>
   </footer>
-
+
 </body>
 </html>
