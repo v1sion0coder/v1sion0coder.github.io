@@ -43,7 +43,10 @@ function newOrder() {
     convo.push({ role: "user", content: text.trim() });
     bubble(log, "me", text.trim());
     input.value = "";
-    const typing = bubble(log, "bot", "…", "bub--typing");
+    input.style.height = "";
+    const typing = bubble(log, "bot", "", "bub--typing");
+    typing.innerHTML = "<span></span><span></span><span></span>";
+    typing.setAttribute("aria-label", "Brief helper is typing");
     try {
       const out = await call("/helper", { messages: convo });
       typing.remove();
@@ -62,6 +65,7 @@ function newOrder() {
 
   function showBrief(b) {
     brief = b;
+    setStep(2);
     const f = $("#order-form");
     for (const k of ["placeName", "placeType", "city", "languages", "timing", "summary"]) if (b[k] && !f[k].dataset.touched) f[k].value = b[k];
     if (b.needs && !f.needs.dataset.touched) f.needs.value = [].concat(b.needs).join(", ");
@@ -71,6 +75,8 @@ function newOrder() {
   }
 
   form.addEventListener("submit", (e) => { e.preventDefault(); send(input.value); });
+  grow(input);
+  $("#order-form").addEventListener("focusin", (e) => { if (["name", "email", "phone"].includes(e.target.name)) setStep(3); });
   input.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(input.value); } });
   $("#chips").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => send(b.textContent)));
   $("#order-form").querySelectorAll("input, textarea").forEach((el) => el.addEventListener("input", () => { el.dataset.touched = "1"; }));
@@ -93,7 +99,7 @@ function newOrder() {
   });
   // Let people fill in the brief by hand if they prefer.
   const manual = document.createElement("button");
-  manual.type = "button"; manual.className = "manual mono"; manual.textContent = "Skip the chat and fill in the brief myself →";
+  manual.type = "button"; manual.className = "manual"; manual.textContent = "Skip the chat and fill in the brief myself →";
   manual.addEventListener("click", () => showBrief({}));
   $(".chat").after(manual);
 }
@@ -113,7 +119,8 @@ async function myOrder(token) {
     const [t, l] = STATUS[o.status] || STATUS.new;
     $("#status-title").textContent = t;
     $("#status-lead").textContent = l;
-    $("#mine-status").textContent = o.status;
+    $("#mine-status").textContent = (STATUS[o.status] || STATUS.new)[0].replace(".", "") + " · usually replies within 2 working days";
+    renderTimeline(o.status);
     const log = $("#mine-log");
     log.innerHTML = o.messages.length ? "" : '<p class="mono muted">No messages yet. Ask anything here.</p>';
     o.messages.forEach((m) => { const b = bubble(log, m.from === "studio" ? "bot" : "me", m.text); const s = document.createElement("time"); s.textContent = (m.from === "studio" ? "v1sion · " : "You · ") + time(m.at); b.appendChild(s); });
@@ -129,8 +136,30 @@ async function myOrder(token) {
     const text = $("#mine-input").value.trim(); if (!text) return;
     try { render(await call(`/orders/${encodeURIComponent(token)}/messages`, { text })); $("#mine-input").value = ""; } catch (ex) { alert(ex.message); }
   });
+  grow($("#mine-input"));
   $("#mine-input").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); $("#mine-form").requestSubmit(); } });
   $("#copy-link").addEventListener("click", () => { navigator.clipboard?.writeText(location.href); $("#copy-link span").textContent = "Copied"; });
+}
+
+function setStep(n) {
+  document.querySelectorAll(".step").forEach((s) => {
+    const k = Number(s.dataset.step);
+    s.classList.toggle("on", k === n); s.classList.toggle("done", k < n);
+  });
+}
+function grow(el) {
+  const fit = () => { el.style.height = "auto"; el.style.height = Math.min(el.scrollHeight, 140) + "px"; };
+  el.addEventListener("input", fit);
+}
+const FLOW = [["new", "Received", "Your brief is with me"], ["accepted", "Accepted", "I'd love to make it"], ["in_progress", "In progress", "Your site is being made"], ["done", "Done", "Your website is live"]];
+function renderTimeline(status) {
+  const tl = $("#timeline"); if (!tl) return;
+  if (status === "declined") {
+    tl.innerHTML = `<li class="tl tl--done"><span class="tl__dot">✓</span><span><b>Received</b><small>Your brief reached me</small></span></li><li class="tl tl--no"><span class="tl__dot">×</span><span><b>Not this time</b><small>See my message in the chat</small></span></li>`;
+    return;
+  }
+  const idx = Math.max(0, FLOW.findIndex(([s]) => s === status));
+  tl.innerHTML = FLOW.map(([, t, d], i) => `<li class="tl ${i < idx || (i === idx && status === "done") ? "tl--done" : i === idx ? "tl--now" : ""}"><span class="tl__dot">${i < idx || (i === idx && status === "done") ? "✓" : i + 1}</span><span><b>${t}</b><small>${d}</small></span></li>`).join("");
 }
 
 // Wake the server early (free hosting sleeps when idle).

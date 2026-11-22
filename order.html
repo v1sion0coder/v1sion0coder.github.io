@@ -11,59 +11,84 @@
 </head>
 <body class="order-page">
   <a class="skip" href="#main">Skip to content</a>
+  <div class="bg" aria-hidden="true">
+    <span class="orb orb--a"></span><span class="orb orb--b"></span><span class="orb orb--c"></span>
+    <span class="stars"></span><span class="stars stars--2"></span>
+  </div>
+
   <header class="nav nav--solid">
     <a class="nav__logo" href="/" aria-label="V1SION, home">V<span>1</span>SION</a>
-    <nav aria-label="Main"><ul class="nav__links"><li><a href="/#work">Work</a></li><li><a href="/" class="nav__cta">← Back</a></li></ul></nav>
+    <nav aria-label="Main"><ul class="nav__links"><li><a href="/#work">Work</a></li><li><a href="/" class="nav__cta">← Back to site</a></li></ul></nav>
   </header>
 
   <main id="main" class="ord">
     <!-- New order -->
     <section id="new" class="ord__grid" hidden>
       <div class="ord__intro">
-        <p class="mono">(Order)</p>
-        <h1 class="ord__title">Let's build<br />your next<br />website.</h1>
-        <p class="ord__lead">Chat with the Brief helper: a few quick questions about your business, then you check the brief and send it. No payment here. I read every order myself and reply personally.</p>
-        <ol class="ord__steps mono"><li><span>01</span> Tell me about your business</li><li><span>02</span> Check your brief</li><li><span>03</span> Send. I reply with a proposal</li></ol>
+        <p class="eyebrow"><span class="dot"></span> Orders open for 2027</p>
+        <h1 class="ord__title">Let's build your <em>next website.</em></h1>
+        <p class="ord__lead">Tell the Brief helper about your business. It asks a few quick questions and writes your brief. You check it and send it. No payment here: I read every order myself and reply personally.</p>
+
+        <ol class="steps" id="steps" aria-label="Progress">
+          <li class="step on" data-step="1"><span class="step__n">1</span><span class="step__t"><b>Chat</b><small>Tell me about your business</small></span></li>
+          <li class="step" data-step="2"><span class="step__n">2</span><span class="step__t"><b>Brief</b><small>Check and edit it</small></span></li>
+          <li class="step" data-step="3"><span class="step__n">3</span><span class="step__t"><b>Send</b><small>I reply with a proposal</small></span></li>
+        </ol>
+
+        <ul class="perks">
+          <li><b>Any kind of business</b><span>Cafés, shops, security, salons, startups, portfolios…</span></li>
+          <li><b>No payment online</b><span>This is a request. You decide after my proposal.</span></li>
+          <li><b>A real reply</b><span>Usually within two working days, right here in your chat.</span></li>
+        </ul>
       </div>
 
       <div class="ord__panel">
-        <div class="chat" aria-live="polite">
-          <div class="chat__head"><span class="pulse"></span><b>Brief helper</b><span class="mono">usually replies in seconds</span></div>
+        <div class="chat glass" aria-live="polite">
+          <div class="chat__head">
+            <span class="bot" aria-hidden="true"><i></i></span>
+            <span class="chat__who"><b>Brief helper</b><small><span class="live"></span> Online · replies in seconds</small></span>
+          </div>
           <div class="chat__log" id="log"></div>
-          <form class="chat__form" id="chat-form">
-            <label class="sr" for="chat-input">Your message</label>
-            <textarea id="chat-input" rows="2" maxlength="1500" placeholder="e.g. We install CCTV in Riga and need a site with a quote form…" required></textarea>
-            <button type="submit" class="send" aria-label="Send message">↑</button>
-          </form>
           <div class="chips" id="chips">
             <button type="button">What do you offer?</button>
             <button type="button">I run a security company and need a new site</button>
             <button type="button">How does ordering work?</button>
           </div>
+          <form class="chat__form" id="chat-form">
+            <label class="sr" for="chat-input">Your message</label>
+            <textarea id="chat-input" rows="1" maxlength="1500" placeholder="Tell me about your business…" required></textarea>
+            <button type="submit" class="send" aria-label="Send message"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          </form>
         </div>
 
-        <form id="order-form" class="brief" hidden novalidate>
-          <h2>Your brief</h2>
-          <p class="mono">Edit anything before you send it</p>
-          <div class="brief__grid">
-            <label>Business name <input name="placeName" maxlength="120" /></label>
-            <label>Type of business <input name="placeType" maxlength="80" /></label>
-            <label>City <input name="city" maxlength="80" /></label>
-            <label>Languages <input name="languages" maxlength="120" /></label>
-            <label class="wide">What the site must do <input name="needs" maxlength="600" /></label>
-            <label class="wide">When <input name="timing" maxlength="120" /></label>
-            <label class="wide">Summary <textarea name="summary" rows="4" maxlength="1500"></textarea></label>
+        <form id="order-form" class="brief glass" hidden novalidate>
+          <div class="brief__head">
+            <span class="brief__tag">Step 2</span>
+            <h2>Your brief</h2>
+            <p class="muted">Written from your chat. Edit anything before you send it.</p>
           </div>
-          <h2>Your contact</h2>
           <div class="brief__grid">
-            <label>Your name <input name="name" maxlength="80" autocomplete="name" required /></label>
-            <label>Email <input name="email" type="email" maxlength="120" autocomplete="email" required /></label>
-            <label>Phone (optional) <input name="phone" maxlength="40" autocomplete="tel" /></label>
+            <label class="fld">Business name <input name="placeName" maxlength="120" /></label>
+            <label class="fld">Type of business <input name="placeType" maxlength="80" /></label>
+            <label class="fld">City / country <input name="city" maxlength="80" /></label>
+            <label class="fld">Languages <input name="languages" maxlength="120" /></label>
+            <label class="fld wide">What the site must do <input name="needs" maxlength="600" placeholder="e.g. quote form, booking, gallery" /></label>
+            <label class="fld wide">When <input name="timing" maxlength="120" placeholder="e.g. spring 2027" /></label>
+            <label class="fld wide">Summary <textarea name="summary" rows="4" maxlength="1500"></textarea></label>
+          </div>
+          <div class="brief__head brief__head--sub">
+            <span class="brief__tag">Step 3</span>
+            <h2>Where should I reply?</h2>
+          </div>
+          <div class="brief__grid">
+            <label class="fld">Your name <input name="name" maxlength="80" autocomplete="name" required /></label>
+            <label class="fld">Email <input name="email" type="email" maxlength="120" autocomplete="email" required /></label>
+            <label class="fld">Phone <small>(optional)</small> <input name="phone" maxlength="40" autocomplete="tel" /></label>
             <label class="hp" aria-hidden="true">Website <input name="website" tabindex="-1" autocomplete="off" /></label>
           </div>
           <p class="fine">Sending this is a request, not a purchase. Your details are used only to reply to this order.</p>
           <p class="err" id="order-err" role="alert"></p>
-          <button class="btn" type="submit"><span>Send order</span><span aria-hidden="true">→</span></button>
+          <button class="go" type="submit"><span>Send my order</span><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         </form>
       </div>
     </section>
@@ -71,23 +96,27 @@
     <!-- Existing order (private link) -->
     <section id="mine" class="ord__grid" hidden>
       <div class="ord__intro">
-        <p class="mono">Order <span id="ref"></span></p>
+        <p class="eyebrow"><span class="dot"></span> Order <span id="ref"></span></p>
         <h1 class="ord__title" id="status-title">Received.</h1>
         <p class="ord__lead" id="status-lead"></p>
-        <div class="saveme"><p class="mono">Save this page</p><p>This private link is the only way back to your order and our chat. Bookmark it.</p>
-          <button class="btn btn--ghost" id="copy-link" type="button"><span>Copy link</span></button></div>
+        <ol class="timeline" id="timeline" aria-label="Order progress"></ol>
+        <div class="saveme glass"><b>Save this page</b><p>This private link is the only way back to your order and our chat. Bookmark it or copy it.</p>
+          <button class="ghost" id="copy-link" type="button"><span>Copy link</span></button></div>
       </div>
       <div class="ord__panel">
-        <div class="chat">
-          <div class="chat__head"><b>Chat with v1sion</b><span class="mono" id="mine-status"></span></div>
+        <div class="chat glass">
+          <div class="chat__head">
+            <span class="me-av" aria-hidden="true">V1</span>
+            <span class="chat__who"><b>Chat with v1sion</b><small id="mine-status"></small></span>
+          </div>
           <div class="chat__log" id="mine-log" aria-live="polite"></div>
           <form class="chat__form" id="mine-form">
             <label class="sr" for="mine-input">Message to v1sion</label>
-            <textarea id="mine-input" rows="2" maxlength="2000" placeholder="Write a message…" required></textarea>
-            <button type="submit" class="send" aria-label="Send message">↑</button>
+            <textarea id="mine-input" rows="1" maxlength="2000" placeholder="Write a message…" required></textarea>
+            <button type="submit" class="send" aria-label="Send message"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
           </form>
         </div>
-        <details class="brief brief--read"><summary>Your brief</summary><dl id="mine-brief"></dl></details>
+        <details class="brief brief--read glass"><summary><span>Your brief</span><span aria-hidden="true">▾</span></summary><dl id="mine-brief"></dl></details>
       </div>
     </section>
   </main>
