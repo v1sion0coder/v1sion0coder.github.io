@@ -250,3 +250,6 @@ main { position: relative; z-index: 1; }
   .hero__kicker { position: static; margin-bottom: 14px; }
   .foot { flex-direction: column; gap: 10px; }
 }
+
+.contact__ctas { display: flex; flex-wrap: wrap; gap: 12px; }
+.btn--line { background: transparent; color: var(--bone); border: 1px solid var(--line); }

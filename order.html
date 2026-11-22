@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order a website — v1sion · V1SION Digital Studio</title>
+  <meta name="description" content="Tell v1sion about your café, bakery or independent place and order your own art-directed website. No payment online: v1sion replies personally." />
+  <meta name="theme-color" content="#0a0a0b" />
+  <link rel="canonical" href="https://v1sion0coder.github.io/order.html" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+</head>
+<body class="order-page">
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="nav nav--solid">
+    <a class="nav__logo" href="/" aria-label="V1SION, home">V<span>1</span>SION</a>
+    <nav aria-label="Main"><ul class="nav__links"><li><a href="/#work">Work</a></li><li><a href="/" class="nav__cta">← Back</a></li></ul></nav>
+  </header>
+
+  <main id="main" class="ord">
+    <!-- New order -->
+    <section id="new" class="ord__grid" hidden>
+      <div class="ord__intro">
+        <p class="mono">(Order)</p>
+        <h1 class="ord__title">Let's build<br />your place<br />a website.</h1>
+        <p class="ord__lead">Chat with the Brief helper: a few quick questions about your place, then you check the brief and send it. No payment here. I read every order myself and reply personally.</p>
+        <ol class="ord__steps mono"><li><span>01</span> Talk about your place</li><li><span>02</span> Check your brief</li><li><span>03</span> Send. I reply with a proposal</li></ol>
+      </div>
+
+      <div class="ord__panel">
+        <div class="chat" aria-live="polite">
+          <div class="chat__head"><span class="pulse"></span><b>Brief helper</b><span class="mono">usually replies in seconds</span></div>
+          <div class="chat__log" id="log"></div>
+          <form class="chat__form" id="chat-form">
+            <label class="sr" for="chat-input">Your message</label>
+            <textarea id="chat-input" rows="2" maxlength="1500" placeholder="e.g. We're a small bakery in Riga and want cake pre-orders…" required></textarea>
+            <button type="submit" class="send" aria-label="Send message">↑</button>
+          </form>
+          <div class="chips" id="chips">
+            <button type="button">What do you offer?</button>
+            <button type="button">I have a café and need table booking</button>
+            <button type="button">How does ordering work?</button>
+          </div>
+        </div>
+
+        <form id="order-form" class="brief" hidden novalidate>
+          <h2>Your brief</h2>
+          <p class="mono">Edit anything before you send it</p>
+          <div class="brief__grid">
+            <label>Place name <input name="placeName" maxlength="120" /></label>
+            <label>Type of place <input name="placeType" maxlength="80" /></label>
+            <label>City <input name="city" maxlength="80" /></label>
+            <label>Languages <input name="languages" maxlength="120" /></label>
+            <label class="wide">What the site must do <input name="needs" maxlength="600" /></label>
+            <label class="wide">When <input name="timing" maxlength="120" /></label>
+            <label class="wide">Summary <textarea name="summary" rows="4" maxlength="1500"></textarea></label>
+          </div>
+          <h2>Your contact</h2>
+          <div class="brief__grid">
+            <label>Your name <input name="name" maxlength="80" autocomplete="name" required /></label>
+            <label>Email <input name="email" type="email" maxlength="120" autocomplete="email" required /></label>
+            <label>Phone (optional) <input name="phone" maxlength="40" autocomplete="tel" /></label>
+            <label class="hp" aria-hidden="true">Website <input name="website" tabindex="-1" autocomplete="off" /></label>
+          </div>
+          <p class="fine">Sending this is a request, not a purchase. Your details are used only to reply to this order.</p>
+          <p class="err" id="order-err" role="alert"></p>
+          <button class="btn" type="submit"><span>Send order</span><span aria-hidden="true">→</span></button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Existing order (private link) -->
+    <section id="mine" class="ord__grid" hidden>
+      <div class="ord__intro">
+        <p class="mono">Order <span id="ref"></span></p>
+        <h1 class="ord__title" id="status-title">Received.</h1>
+        <p class="ord__lead" id="status-lead"></p>
+        <div class="saveme"><p class="mono">Save this page</p><p>This private link is the only way back to your order and our chat. Bookmark it.</p>
+          <button class="btn btn--ghost" id="copy-link" type="button"><span>Copy link</span></button></div>
+      </div>
+      <div class="ord__panel">
+        <div class="chat">
+          <div class="chat__head"><b>Chat with v1sion</b><span class="mono" id="mine-status"></span></div>
+          <div class="chat__log" id="mine-log" aria-live="polite"></div>
+          <form class="chat__form" id="mine-form">
+            <label class="sr" for="mine-input">Message to v1sion</label>
+            <textarea id="mine-input" rows="2" maxlength="2000" placeholder="Write a message…" required></textarea>
+            <button type="submit" class="send" aria-label="Send message">↑</button>
+          </form>
+        </div>
+        <details class="brief brief--read"><summary>Your brief</summary><dl id="mine-brief"></dl></details>
+      </div>
+    </section>
+  </main>
+  <script type="module" src="/src/order.js"></script>
+</body>
+</html>
