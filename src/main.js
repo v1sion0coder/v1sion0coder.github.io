@@ -71,7 +71,7 @@ async function boot3D() {
   const { createScene, hasWebGL } = await import("./scene.js");
   if (!hasWebGL()) { document.body.classList.add("no-webgl"); return; }
   try {
-    scene = createScene(document.getElementById("gl"), { reducedMotion: reduced });
+    scene = createScene(document.getElementById("gl"), { reducedMotion: reduced, front: document.getElementById("gl-front"), target: document.querySelector(".o-letter") });
   } catch (err) {
     document.body.classList.add("no-webgl");
   }
