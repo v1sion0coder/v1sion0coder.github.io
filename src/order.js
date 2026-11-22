@@ -32,7 +32,7 @@ function newOrder() {
   const log = $("#log"), input = $("#chat-input"), form = $("#chat-form");
   const convo = [];
   let brief = null, busy = false, lastSent = 0;
-  bubble(log, "bot", "Hi! I'm the Brief helper. Tell me about your place, or ask anything about what v1sion makes.");
+  bubble(log, "bot", "Hi! I'm the Brief helper. Tell me about your business or project (any kind is welcome), or ask anything about what v1sion makes.");
 
   async function send(text) {
     if (busy || !text.trim() || form.dataset.closed) return;
@@ -116,7 +116,7 @@ async function myOrder(token) {
     log.innerHTML = o.messages.length ? "" : '<p class="mono muted">No messages yet. Ask anything here.</p>';
     o.messages.forEach((m) => { const b = bubble(log, m.from === "studio" ? "bot" : "me", m.text); const s = document.createElement("time"); s.textContent = (m.from === "studio" ? "v1sion · " : "You · ") + time(m.at); b.appendChild(s); });
     const b = o.brief;
-    $("#mine-brief").innerHTML = [["Place", `${b.placeName} ${b.placeType ? "(" + b.placeType + ")" : ""}`], ["City", b.city], ["Needs", (b.needs || []).join(", ")], ["Languages", b.languages], ["When", b.timing], ["Summary", b.summary]]
+    $("#mine-brief").innerHTML = [["Business", `${b.placeName} ${b.placeType ? "(" + b.placeType + ")" : ""}`], ["City", b.city], ["Needs", (b.needs || []).join(", ")], ["Languages", b.languages], ["When", b.timing], ["Summary", b.summary]]
       .map(([k, v]) => `<dt class="mono">${k}</dt><dd>${esc(v)}</dd>`).join("");
   };
   const load = async () => { try { render(await call("/orders/" + encodeURIComponent(token))); } catch (e) { $("#status-title").textContent = "Not found."; $("#status-lead").textContent = "This order link doesn't work. Check that you copied the whole link."; } };
