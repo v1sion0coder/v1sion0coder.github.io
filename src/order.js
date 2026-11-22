@@ -102,6 +102,8 @@ function newOrder() {
 const STATUS = {
   new: ["Received.", "Thank you! I'll read your brief and reply here, usually within two working days."],
   accepted: ["Accepted.", "Great news: I'd love to make this. Check the chat for next steps."],
+  in_progress: ["In progress.", "Your website is being made right now. Updates and previews come here in the chat."],
+  done: ["Done.", "Your website is finished. Thank you for working with me!"],
   declined: ["Not this time.", "Thank you for thinking of me. See my message in the chat."],
 };
 async function myOrder(token) {
