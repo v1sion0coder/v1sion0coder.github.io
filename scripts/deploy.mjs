@@ -2,6 +2,7 @@
 import { execSync } from 'node:child_process';
 import { writeFileSync } from 'node:fs';
 const run = (c, o = {}) => execSync(c, { stdio: 'inherit', ...o });
+process.env.VITE_API_URL ||= 'https://v1sion-orders.onrender.com';
 run('npx vite build');
 writeFileSync('dist/.nojekyll', '');
 const remote = execSync('git remote get-url origin').toString().trim();
