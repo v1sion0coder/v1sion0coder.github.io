@@ -29,6 +29,42 @@ document.querySelectorAll(".reveal-words").forEach((el) => {
   el.innerHTML = el.textContent.trim().split(/\s+/).map((w) => `<span class="w">${w}</span>`).join(" ");
 });
 
+// ---- Work index: accordion + cursor preview ----
+document.querySelectorAll("button.idx__head").forEach((btn) => {
+  const panel = document.getElementById(btn.getAttribute("aria-controls"));
+  btn.addEventListener("click", () => {
+    const open = btn.getAttribute("aria-expanded") === "true";
+    btn.setAttribute("aria-expanded", String(!open));
+    if (open) {
+      if (reduced) { panel.hidden = true; ScrollTrigger.refresh(); return; }
+      gsap.to(panel, { height: 0, duration: 0.6, ease: "expo.inOut", onComplete: () => { panel.hidden = true; panel.style.height = ""; ScrollTrigger.refresh(); } });
+    } else {
+      panel.hidden = false;
+      if (reduced) { ScrollTrigger.refresh(); return; }
+      gsap.fromTo(panel, { height: 0 }, { height: "auto", duration: 0.8, ease: "expo.out", onComplete: () => ScrollTrigger.refresh() });
+    }
+  });
+});
+const peek = document.querySelector(".peek");
+if (peek && window.matchMedia("(hover: hover)").matches) {
+  let x = 0, y = 0, px = 0, py = 0, raf = 0;
+  const tick = () => { px += (x - px) * 0.15; py += (y - py) * 0.15; peek.style.left = px + "px"; peek.style.top = py + "px"; raf = requestAnimationFrame(tick); };
+  document.querySelectorAll("button.idx__head").forEach((btn) => {
+    btn.addEventListener("mouseenter", (e) => {
+      if (btn.getAttribute("aria-expanded") === "true") return;
+      const cs = getComputedStyle(btn.parentElement);
+      ["--c1", "--c2", "--bg"].forEach((v) => peek.style.setProperty(v, cs.getPropertyValue(v)));
+      peek.querySelectorAll(".peek__m").forEach((m) => m.classList.toggle("on", m.dataset.m === btn.dataset.preview));
+      x = px = e.clientX + 220; y = py = e.clientY;
+      peek.classList.add("on");
+      cancelAnimationFrame(raf); raf = requestAnimationFrame(tick);
+    });
+    btn.addEventListener("mousemove", (e) => { x = e.clientX + 220; y = e.clientY; });
+    btn.addEventListener("mouseleave", () => { peek.classList.remove("on"); cancelAnimationFrame(raf); });
+    btn.addEventListener("click", () => peek.classList.remove("on"));
+  });
+}
+
 // ---- 3D ----
 let scene = null;
 async function boot3D() {
@@ -82,12 +118,10 @@ function scrollFx() {
   });
   reveal(".section-head");
   reveal(".svc__item", { stagger: 0.06 });
-  reveal(".case__art");
-  reveal(".case__body");
+  reveal(".idx__row", { stagger: 0.08 });
   reveal(".now__card");
   reveal(".contact__title");
 
-  gsap.utils.toArray(".case__art--layers span").forEach((s, i) => s.style.setProperty("--i", i));
 }
 
 // never leave the loader up, even if 3D is slow to start

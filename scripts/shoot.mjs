@@ -41,7 +41,8 @@ await send('Emulation.setDeviceMetricsOverride', { width: Number(W), height: Num
 mkdirSync(dir, { recursive: true });
 await send('Page.navigate', { url }); await sleep(5000);
 for (const s of stops.length ? stops : ['0']) {
-  if (s.startsWith('#') || s.startsWith('.')) {
+  if (s.startsWith('click:')) { await evalJs(`document.querySelector(${JSON.stringify(s.slice(6))}).click()`); await sleep(1500); await evalJs(`(async()=>{const el=document.querySelector(${JSON.stringify(s.slice(6))});scrollTo(0,el.getBoundingClientRect().top+scrollY-90);})()`); }
+  else if (s.startsWith('#') || s.startsWith('.')) {
     await evalJs(`(async()=>{const el=document.querySelector(${JSON.stringify(s)});const y=el.getBoundingClientRect().top+scrollY;for(let k=scrollY;k<y;k+=innerHeight*.5){scrollTo(0,k);await new Promise(r=>setTimeout(r,80));}scrollTo(0,y);})()`);
   } else {
     await evalJs(`(async()=>{const T=${Number(s)}*(document.documentElement.scrollHeight-innerHeight);for(let k=scrollY;k<T;k+=innerHeight*.5){scrollTo(0,k);await new Promise(r=>setTimeout(r,80));}scrollTo(0,T);})()`);
