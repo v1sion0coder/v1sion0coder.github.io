@@ -29,40 +29,33 @@ document.querySelectorAll(".reveal-words").forEach((el) => {
   el.innerHTML = el.textContent.trim().split(/\s+/).map((w) => `<span class="w">${w}</span>`).join(" ");
 });
 
-// ---- Work index: accordion + cursor preview ----
-document.querySelectorAll("button.idx__head").forEach((btn) => {
-  const panel = document.getElementById(btn.getAttribute("aria-controls"));
-  btn.addEventListener("click", () => {
-    const open = btn.getAttribute("aria-expanded") === "true";
-    btn.setAttribute("aria-expanded", String(!open));
-    if (open) {
-      if (reduced) { panel.hidden = true; ScrollTrigger.refresh(); return; }
-      gsap.to(panel, { height: 0, duration: 0.6, ease: "expo.inOut", onComplete: () => { panel.hidden = true; panel.style.height = ""; ScrollTrigger.refresh(); } });
-    } else {
-      panel.hidden = false;
-      if (reduced) { ScrollTrigger.refresh(); return; }
-      gsap.fromTo(panel, { height: 0 }, { height: "auto", duration: 0.8, ease: "expo.out", onComplete: () => ScrollTrigger.refresh() });
-    }
-  });
-});
-const peek = document.querySelector(".peek");
-if (peek && window.matchMedia("(hover: hover)").matches) {
-  let x = 0, y = 0, px = 0, py = 0, raf = 0;
-  const tick = () => { px += (x - px) * 0.15; py += (y - py) * 0.15; peek.style.left = px + "px"; peek.style.top = py + "px"; raf = requestAnimationFrame(tick); };
-  document.querySelectorAll("button.idx__head").forEach((btn) => {
-    btn.addEventListener("mouseenter", (e) => {
-      if (btn.getAttribute("aria-expanded") === "true") return;
-      const cs = getComputedStyle(btn.parentElement);
-      ["--c1", "--c2", "--bg"].forEach((v) => peek.style.setProperty(v, cs.getPropertyValue(v)));
-      peek.querySelectorAll(".peek__m").forEach((m) => m.classList.toggle("on", m.dataset.m === btn.dataset.preview));
-      x = px = e.clientX + 220; y = py = e.clientY;
-      peek.classList.add("on");
-      cancelAnimationFrame(raf); raf = requestAnimationFrame(tick);
+// ---- Work reel: pinned horizontal scroll (desktop) + device tilt ----
+function workReel() {
+  const track = document.querySelector(".reel__track");
+  if (!track) return;
+  const slides = gsap.utils.toArray(".slide");
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    slides.forEach((s) => {
+      const stage = s.querySelector(".shot, .yours"), info = s.querySelector(".slide__info");
+      const tl = gsap.timeline({ scrollTrigger: { trigger: s, start: "top 80%" } });
+      if (stage) tl.from(stage, { opacity: 0, y: 70, scale: 0.96, duration: 1.2, ease: "expo.out" });
+      if (info) tl.from(info.children, { opacity: 0, y: 30, duration: 0.9, ease: "expo.out", stagger: 0.07 }, "-=0.9");
     });
-    btn.addEventListener("mousemove", (e) => { x = e.clientX + 220; y = e.clientY; });
-    btn.addEventListener("mouseleave", () => { peek.classList.remove("on"); cancelAnimationFrame(raf); });
-    btn.addEventListener("click", () => peek.classList.remove("on"));
-  });
+  }
+  // mouse tilt on devices
+  if (window.matchMedia("(hover: hover)").matches) {
+    document.querySelectorAll(".shot").forEach((st) => {
+      st.addEventListener("pointermove", (e) => {
+        const r = st.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
+        st.style.setProperty("--ry", `${(px - 0.5) * 12}deg`);
+        st.style.setProperty("--rx", `${(0.5 - py) * 10}deg`);
+        st.style.setProperty("--mx", `${px * 100}%`);
+        st.style.setProperty("--my", `${py * 100}%`);
+      });
+      st.addEventListener("pointerleave", () => { st.style.setProperty("--ry", "0deg"); st.style.setProperty("--rx", "0deg"); });
+    });
+  }
 }
 
 // ---- 3D ----
@@ -118,7 +111,6 @@ function scrollFx() {
   });
   reveal(".section-head");
   reveal(".svc__item", { stagger: 0.06 });
-  reveal(".idx__row", { stagger: 0.08 });
   reveal(".now__card");
   reveal(".contact__title");
 
@@ -128,6 +120,7 @@ function scrollFx() {
 const safety = setTimeout(() => document.body.classList.remove("is-loading"), 2500);
 boot3D().finally(() => {
   clearTimeout(safety);
+  workReel();
   scrollFx();
   intro();
 });
