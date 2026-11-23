@@ -2,6 +2,7 @@ import "@fontsource/syne/400.css";
 import "@fontsource/syne/700.css";
 import "@fontsource/syne/800.css";
 import "@fontsource/jetbrains-mono/400.css";
+import "@fontsource/instrument-serif/400-italic.css";
 import "./style.css";
 import "./order.css";
 import { richHtml } from "./rich.js";
@@ -80,6 +81,11 @@ function newOrder() {
   $("#order-form").addEventListener("focusin", (e) => { if (["name", "email", "phone"].includes(e.target.name)) setStep(3); });
   input.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(input.value); } });
   $("#chips").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => send(b.textContent)));
+  document.querySelectorAll("[data-need]").forEach((b) => b.addEventListener("click", () => {
+    document.querySelectorAll("[data-need]").forEach((x) => x.classList.toggle("on", x === b));
+    send(b.dataset.need);
+    if (window.innerWidth < 960) $(".chat").scrollIntoView({ behavior: "smooth", block: "start" });
+  }));
   $("#order-form").querySelectorAll("input, textarea").forEach((el) => el.addEventListener("input", () => { el.dataset.touched = "1"; }));
 
   $("#order-form").addEventListener("submit", async (e) => {

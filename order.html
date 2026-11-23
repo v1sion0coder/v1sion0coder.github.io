@@ -18,6 +18,7 @@
 
   <header class="nav nav--solid">
     <a class="nav__logo" href="/" aria-label="V1SION, home">V<span>1</span>SION</a>
+    <span class="avail"><i></i> Taking orders now</span>
     <nav aria-label="Main"><ul class="nav__links"><li><a href="/#work">Work</a></li><li><a href="/" class="nav__cta">← Back to site</a></li></ul></nav>
   </header>
 
@@ -25,9 +26,28 @@
     <!-- New order -->
     <section id="new" class="ord__grid" hidden>
       <div class="ord__intro">
-        <p class="eyebrow"><span class="dot"></span> Orders open for 2027</p>
-        <h1 class="ord__title">Let's build your <em>next website.</em></h1>
+        <p class="eyebrow"><span class="dot dot--live"></span> Taking orders now · since 23.11.2026</p>
+        <h1 class="ord__title">Let's build your <em class="it">next website.</em></h1>
         <p class="ord__lead">Tell the Brief helper about your business. It asks a few quick questions and writes your brief. You check it and send it. No payment here: I read every order myself and reply personally.</p>
+
+        <ul class="trust" aria-label="Good to know">
+          <li><span aria-hidden="true">€0</span>Free to ask</li>
+          <li><span aria-hidden="true">✓</span>No obligation</li>
+          <li><span aria-hidden="true">≈2d</span>Reply in about 2 days</li>
+          <li><span aria-hidden="true">Aa</span>Any language</li>
+        </ul>
+
+        <div class="needs" id="needs">
+          <p class="needs__q">What do you need? <small>Tap one to start, or just write in the chat.</small></p>
+          <div class="needs__grid">
+            <button type="button" data-need="I need a new website for my business."><b>🌐</b><span>A new website</span></button>
+            <button type="button" data-need="I'd like customers to order online from my website."><b>🛍️</b><span>Online orders</span></button>
+            <button type="button" data-need="I need online booking or appointments on my website."><b>📅</b><span>Bookings</span></button>
+            <button type="button" data-need="I'd like a quote or enquiry form so clients can contact me."><b>✉️</b><span>Quote form</span></button>
+            <button type="button" data-need="I want to redesign my existing website so it looks better."><b>✨</b><span>Redesign</span></button>
+            <button type="button" data-need="I'm not sure yet what I need. Can you help me decide?"><b>🤔</b><span>Not sure yet</span></button>
+          </div>
+        </div>
 
         <ol class="steps" id="steps" aria-label="Progress">
           <li class="step on" data-step="1"><span class="step__n">1</span><span class="step__t"><b>Chat</b><small>Tell me about your business</small></span></li>
@@ -84,7 +104,7 @@
             <label class="fld">City / country <input name="city" maxlength="80" /></label>
             <label class="fld">Languages <input name="languages" maxlength="120" /></label>
             <label class="fld wide">What the site must do <input name="needs" maxlength="600" placeholder="e.g. quote form, booking, gallery" /></label>
-            <label class="fld wide">When <input name="timing" maxlength="120" placeholder="e.g. spring 2027" /></label>
+            <label class="fld wide">When <input name="timing" maxlength="120" placeholder="e.g. as soon as possible, or by March" /></label>
             <label class="fld wide">Summary <textarea name="summary" rows="4" maxlength="1500"></textarea></label>
           </div>
           <div class="brief__head brief__head--sub">
