@@ -6,6 +6,9 @@ import "@fontsource/instrument-serif/400-italic.css";
 import "./style.css";
 import "./order.css";
 import { richHtml } from "./rich.js";
+import { gsap } from "gsap";
+gsap.config({ nullTargetWarn: false });
+const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 const API = (import.meta.env.VITE_API_URL || "http://localhost:3300").replace(/\/$/, "") + "/api";
 const $ = (s) => document.querySelector(s);
@@ -97,6 +100,10 @@ function newOrder() {
     if (b.needs && !f.needs.dataset.touched) f.needs.value = [].concat(b.needs).join(", ");
     const first = f.hidden;
     f.hidden = false;
+    if (first && !REDUCED) {
+      gsap.fromTo(f, { clipPath: "inset(0 0 100% 0 round 24px)", y: 30 }, { clipPath: "inset(0 0 0% 0 round 24px)", y: 0, duration: 1, ease: "expo.out" });
+      gsap.from(f.querySelectorAll(".fld, .brief__head, .go"), { y: 24, opacity: 0, stagger: 0.04, duration: 0.7, ease: "expo.out", delay: 0.2 });
+    }
     if (first) setTimeout(() => f.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }), 300);
   }
 
@@ -136,6 +143,7 @@ function newOrder() {
         transcript: convo,
       });
       clearDraft();
+      await celebrate(btn);
       location.hash = "t=" + out.token;
       location.reload();
     } catch (ex) { err.textContent = ex.message; btn.disabled = false; }
@@ -186,7 +194,12 @@ async function myOrder(token) {
 function setStep(n) {
   document.querySelectorAll(".step").forEach((s) => {
     const k = Number(s.dataset.step);
+    const was = s.classList.contains("on");
     s.classList.toggle("on", k === n); s.classList.toggle("done", k < n);
+    if (!REDUCED && k === n && !was) {
+      gsap.fromTo(s.querySelector(".step__n"), { scale: 0.4, rotate: -120 }, { scale: 1, rotate: 0, duration: 0.8, ease: "back.out(2.4)" });
+      gsap.fromTo(s, { x: -8 }, { x: 0, duration: 0.6, ease: "elastic.out(1, 0.4)" });
+    }
   });
 }
 function grow(el) {
@@ -237,6 +250,81 @@ function renderMineThread(o) {
   renderMineThread.done = true;
 }
 
+// ---------- Animations ----------
+function celebrate(btn) {
+  if (REDUCED) return Promise.resolve();
+  btn.querySelector("span").textContent = "Sent! ✓";
+  const r = btn.getBoundingClientRect();
+  const colors = ["#ff6a2b", "#ff9fd0", "#a58bff", "#ffd36b", "#47c27a"];
+  for (let i = 0; i < 70; i++) {
+    const d = document.createElement("i");
+    d.className = "confetti";
+    d.style.background = colors[i % colors.length];
+    d.style.left = r.left + r.width / 2 + "px"; d.style.top = r.top + r.height / 2 + "px";
+    document.body.appendChild(d);
+    const a = Math.random() * Math.PI * 2, v = 120 + Math.random() * 260;
+    gsap.to(d, { x: Math.cos(a) * v, y: Math.sin(a) * v - 120, rotate: Math.random() * 720, opacity: 0, duration: 1.2 + Math.random() * 0.6, ease: "power3.out", onComplete: () => d.remove() });
+  }
+  gsap.fromTo(btn, { scale: 0.92 }, { scale: 1, duration: 0.6, ease: "elastic.out(1, 0.4)" });
+  return new Promise((res) => setTimeout(res, 1300));
+}
+
+function pageIntro() {
+  if (REDUCED) return;
+  const sec = document.querySelector("#new:not([hidden]), #mine:not([hidden])");
+  if (!sec) return;
+  // curtain
+  const cur = document.createElement("div"); cur.className = "curtain"; document.body.appendChild(cur);
+  gsap.to(cur, { yPercent: -100, duration: 1, ease: "expo.inOut", delay: 0.1, onComplete: () => cur.remove() });
+  // title words rise
+  const title = sec.querySelector(".ord__title");
+  if (title && !title.dataset.split) {
+    title.dataset.split = "1";
+    const nodes = [...title.childNodes];
+    title.innerHTML = "";
+    nodes.forEach((n) => {
+      if (n.nodeType === 3) n.textContent.split(/(\s+)/).forEach((w) => { if (!w) return; if (/^\s+$/.test(w)) { title.append(w); return; } const m = document.createElement("span"); m.className = "wmask"; const i = document.createElement("span"); i.className = "w"; i.textContent = w; m.append(i); title.append(m); });
+      else { const m = document.createElement("span"); m.className = "wmask"; n.classList.add("w"); m.append(n); title.append(m); }
+    });
+  }
+  const tl = gsap.timeline({ delay: 0.5 });
+  tl.from(sec.querySelectorAll(".ord__title .w"), { yPercent: 110, rotate: 4, duration: 1.1, ease: "expo.out", stagger: 0.08 })
+    .from(sec.querySelector(".eyebrow"), { y: -20, opacity: 0, duration: 0.7, ease: "expo.out" }, 0)
+    .from(sec.querySelectorAll(".ord__lead, .trust li, .needs__q"), { y: 20, opacity: 0, stagger: 0.05, duration: 0.8, ease: "expo.out" }, "-=0.7")
+    .from(sec.querySelectorAll(".needs__grid button"), { scale: 0.7, opacity: 0, stagger: { each: 0.05, grid: "auto", from: "start" }, duration: 0.7, ease: "back.out(1.8)" }, "-=0.5")
+    .from(sec.querySelectorAll(".step, .help, .ofaq details, .perks li, .tl, .saveme"), { x: -30, opacity: 0, stagger: 0.05, duration: 0.7, ease: "expo.out" }, "-=0.5")
+    .from(sec.querySelectorAll(".ord__panel > *:not([hidden])"), { x: 80, rotateY: -12, opacity: 0, transformPerspective: 1200, stagger: 0.1, duration: 1.2, ease: "expo.out" }, 0.2);
+  // orbs follow the mouse a little
+  const orbs = document.querySelectorAll(".orb");
+  window.addEventListener("pointermove", (e) => {
+    const x = e.clientX / innerWidth - 0.5, y = e.clientY / innerHeight - 0.5;
+    orbs.forEach((o, i) => gsap.to(o, { x: x * (40 + i * 30), y: y * (40 + i * 30), duration: 1.6, ease: "power3.out", overwrite: "auto" }));
+  }, { passive: true });
+  if (window.matchMedia("(hover: hover)").matches) {
+    // cursor ring
+    const c = document.createElement("div"); c.className = "cursor"; c.setAttribute("aria-hidden", "true"); document.body.appendChild(c);
+    let x = 0, y = 0, cx = 0, cy = 0;
+    window.addEventListener("pointermove", (e) => { x = e.clientX; y = e.clientY; c.classList.add("on"); }, { passive: true });
+    gsap.ticker.add(() => { cx += (x - cx) * 0.2; cy += (y - cy) * 0.2; c.style.transform = `translate(${cx}px, ${cy}px)`; });
+    document.querySelectorAll("a, button, summary, textarea, input, select").forEach((el) => {
+      el.addEventListener("pointerenter", () => c.classList.add("big"));
+      el.addEventListener("pointerleave", () => c.classList.remove("big"));
+    });
+    // magnetic buttons
+    document.querySelectorAll(".send, .go, .avail, .theme-btn, .ghost").forEach((el) => {
+      el.addEventListener("pointermove", (e) => { const r = el.getBoundingClientRect(); gsap.to(el, { x: (e.clientX - r.left - r.width / 2) * 0.3, y: (e.clientY - r.top - r.height / 2) * 0.3, duration: 0.4, ease: "power3.out" }); });
+      el.addEventListener("pointerleave", () => gsap.to(el, { x: 0, y: 0, duration: 0.7, ease: "elastic.out(1, 0.4)" }));
+    });
+    // tiles tilt
+    document.querySelectorAll(".needs__grid button, .trust li").forEach((el) => {
+      el.addEventListener("pointermove", (e) => { const r = el.getBoundingClientRect(); const px = (e.clientX - r.left) / r.width - 0.5, py = (e.clientY - r.top) / r.height - 0.5; gsap.to(el, { rotateY: px * 14, rotateX: -py * 14, transformPerspective: 700, duration: 0.4, ease: "power3.out" }); });
+      el.addEventListener("pointerleave", () => gsap.to(el, { rotateY: 0, rotateX: 0, duration: 0.8, ease: "elastic.out(1, 0.5)" }));
+    });
+  }
+  // tile tap bounce
+  document.querySelectorAll("[data-need]").forEach((b) => b.addEventListener("click", () => gsap.fromTo(b, { scale: 0.9 }, { scale: 1, duration: 0.6, ease: "elastic.out(1, 0.4)" })));
+}
+
 // ---------- Light / dark mode (shared with the main site) ----------
 (() => {
   const KEY = "v1-theme";
@@ -254,3 +342,4 @@ fetch(API + "/health").catch(() => {});
 
 const token = new URLSearchParams(location.hash.slice(1)).get("t");
 if (token) myOrder(token); else newOrder();
+pageIntro();

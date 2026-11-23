@@ -53,6 +53,7 @@ for (const s of stops.length ? stops : ['0']) {
   writeFileSync(join(dir, name), Buffer.from(data, 'base64'));
   console.log('saved', name);
 }
+if (process.env.EVAL) console.log('eval:', await evalJs(process.env.EVAL));
 const of = await evalJs(`(()=>{const W=document.documentElement.clientWidth;const bad=[...document.querySelectorAll('body *')].filter(n=>{const b=n.getBoundingClientRect();return b.width>0&&(b.right>W+1||b.left<-1)&&!n.closest('.marquee,.stage,svg')}).slice(0,6).map(n=>n.tagName+'.'+String(n.className).slice(0,30)+' r='+Math.round(n.getBoundingClientRect().right));return JSON.stringify({scrollW:document.documentElement.scrollWidth,W,bad})})()`);
 console.log('overflow:', of);
 console.log(logs.length ? 'console:\n' + [...new Set(logs)].join('\n') : 'console: clean');

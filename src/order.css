@@ -209,3 +209,14 @@ html[data-theme="light"] .day span { background: rgba(23,22,26,.06); }
 a.tg { color: #5cc3f5; font-weight: 700; text-decoration: none; }
 a.tg:hover { text-decoration: underline; }
 html[data-theme="light"] a.tg { color: #1d82c0; }
+
+/* ===== Order page animation helpers ===== */
+.curtain { position: fixed; inset: 0; z-index: 300; background: linear-gradient(160deg, #ff6a2b, #e0367a 55%, #8f6dff); pointer-events: none; }
+.wmask { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .06em; margin-bottom: -.06em; }
+.wmask .w { display: inline-block; }
+.confetti { position: fixed; width: 9px; height: 14px; border-radius: 2px; z-index: 400; pointer-events: none; margin: -7px 0 0 -4px; }
+.needs__grid button, .trust li { transform-style: preserve-3d; will-change: transform; }
+.orb { will-change: transform; }
+.needs__grid button, .trust li, .send, .go { transition: border-color .3s, background .3s, box-shadow .3s; }
+.needs__grid button:hover { transform: none; }
+.step, .step__n, .chips button, .bub, .lcard, .ghost, .manual { transition-property: border-color, background, color, box-shadow; }
