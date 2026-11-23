@@ -189,11 +189,93 @@ async function boot3D() {
   }
 }
 
+// Split the hero title into letters (keeps the special "O" for the fly-through)
+function splitTitle() {
+  const host = document.querySelector(".hero__title .line > span");
+  if (!host || host.dataset.split) return [];
+  host.dataset.split = "1";
+  const out = [];
+  [...host.childNodes].forEach((n) => {
+    if (n.nodeType === 3) {
+      const frag = document.createDocumentFragment();
+      [...n.textContent].forEach((c) => { const sp = document.createElement("span"); sp.className = "ch"; sp.textContent = c; frag.appendChild(sp); out.push(sp); });
+      host.replaceChild(frag, n);
+    } else { n.classList.add("ch"); out.push(n); }
+  });
+  host.setAttribute("aria-label", host.textContent);
+  return out;
+}
+
 function intro() {
-  document.body.classList.remove("is-loading");
+  if (reduced) { document.body.classList.remove("is-loading"); return; }
+  const chars = splitTitle();
+  const count = document.getElementById("loader-count");
+  const tl = gsap.timeline();
+  const o = { v: 0 };
+  tl.to(o, { v: 100, duration: 1.1, ease: "power2.inOut", onUpdate: () => { if (count) count.textContent = Math.round(o.v); } })
+    .to([".loader__ring", ".loader__txt", ".loader__count"], { opacity: 0, y: -30, duration: 0.4, ease: "power2.in" })
+    .to(".loader__panel--a", { yPercent: -100, duration: 0.9, ease: "expo.inOut" }, "<0.1")
+    .to(".loader__panel--b", { yPercent: 100, duration: 0.9, ease: "expo.inOut" }, "<")
+    .add(() => document.body.classList.remove("is-loading"), "-=0.3")
+    .from(chars, { yPercent: 120, rotateX: -95, opacity: 0, duration: 1.3, ease: "expo.out", stagger: 0.07, transformOrigin: "50% 100%" }, "-=0.5")
+    .from([".hero__kicker", ".hero__foot", ".nav"], { opacity: 0, y: 16, duration: 1, ease: "expo.out", stagger: 0.08 }, "-=1");
+  // playful wave when the mouse touches a letter
+  chars.forEach((c) => c.addEventListener("pointerenter", () => {
+    if (gsap.isTweening(c)) return;
+    gsap.to(c, { yPercent: -14, rotate: gsap.utils.random(-6, 6), duration: 0.25, ease: "power2.out", yoyo: true, repeat: 1 });
+  }));
+}
+
+// ---- Scroll progress, scrambled labels, tilt, reveals, footer ----
+function polish() {
+  const bar = document.getElementById("progress");
+  if (bar) ScrollTrigger.create({ start: 0, end: "max", onUpdate: (st) => { bar.style.transform = `scaleX(${st.progress})`; } });
+  // live Riga clock
+  const clock = document.getElementById("riga-clock");
+  const tick = () => { if (clock) clock.textContent = new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Riga" }); };
+  tick(); setInterval(tick, 15000);
   if (reduced) return;
-  gsap.from(".hero__title .line > span", { yPercent: 105, duration: 1.4, ease: "expo.out", delay: 0.15 });
-  gsap.from([".hero__kicker", ".hero__foot", ".nav"], { opacity: 0, y: 16, duration: 1, ease: "expo.out", stagger: 0.08, delay: 0.5 });
+  // scramble the small mono labels as they appear
+  const GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*+";
+  gsap.utils.toArray(".section-head .mono, .end .mono, .pk__tag").forEach((el) => {
+    const final = el.textContent;
+    ScrollTrigger.create({ trigger: el, start: "top 92%", once: true, onEnter: () => {
+      let f = 0; const total = 18;
+      const id = setInterval(() => {
+        f++;
+        el.textContent = [...final].map((ch, i) => (ch === " " || i < (f / total) * final.length ? ch : GLYPHS[Math.floor(Math.random() * GLYPHS.length)])).join("");
+        if (f >= total) { clearInterval(id); el.textContent = final; }
+      }, 35);
+      setTimeout(() => { clearInterval(id); el.textContent = final; }, 1200);
+    } });
+  });
+  // 3D tilt on cards (mouse only)
+  if (window.matchMedia("(hover: hover)").matches) {
+    document.querySelectorAll(".svc__item, .pk__card, .how__steps li, .facts__list li").forEach((el) => {
+      el.classList.add("tilt");
+      el.addEventListener("pointermove", (e) => {
+        const r = el.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width - 0.5, py = (e.clientY - r.top) / r.height - 0.5;
+        gsap.to(el, { rotateY: px * 8, rotateX: -py * 8, transformPerspective: 900, duration: 0.5, ease: "power3.out" });
+      });
+      el.addEventListener("pointerleave", () => gsap.to(el, { rotateY: 0, rotateX: 0, duration: 0.9, ease: "elastic.out(1, 0.5)" }));
+    });
+  }
+  // mockups and project cards wipe in
+  gsap.utils.toArray(".shot, .yours").forEach((el) => {
+    gsap.fromTo(el, { clipPath: "inset(18% 18% 18% 18% round 22px)" }, { clipPath: "inset(0% 0% 0% 0% round 22px)", ease: "none", scrollTrigger: { trigger: el, start: "top 95%", end: "top 45%", scrub: true } });
+  });
+  // services cards rise in a wave
+  gsap.from(".svc__item", { y: 60, opacity: 0, rotateX: 12, transformPerspective: 900, stagger: { each: 0.08, from: "start" }, duration: 1, ease: "expo.out", scrollTrigger: { trigger: ".svc", start: "top 85%" } });
+  // How it works: numbers pop
+  gsap.from(".how__n", { scale: 0, rotate: -90, stagger: 0.12, duration: 0.9, ease: "back.out(2)", scrollTrigger: { trigger: ".how__steps", start: "top 85%" } });
+  // FAQ rows slide in
+  gsap.from(".faq details", { x: -40, opacity: 0, stagger: 0.06, duration: 0.8, ease: "expo.out", scrollTrigger: { trigger: ".faq__list", start: "top 88%" } });
+  // contact title letters lift in
+  gsap.from(".contact__title", { yPercent: 30, opacity: 0, duration: 1.2, ease: "expo.out", scrollTrigger: { trigger: ".contact__title", start: "top 85%" } });
+  // giant footer word fills with colour as you reach the end
+  gsap.to(".end__fill", { backgroundPosition: "0% 0", ease: "none", scrollTrigger: { trigger: ".end", start: "top 90%", end: "bottom bottom", scrub: true } });
+  gsap.from(".end__cols > div", { y: 40, opacity: 0, stagger: 0.1, duration: 1, ease: "expo.out", scrollTrigger: { trigger: ".end__cols", start: "top 92%" } });
 }
 
 function scrollFx() {
@@ -236,11 +318,12 @@ function scrollFx() {
 }
 
 // never leave the loader up, even if 3D is slow to start
-const safety = setTimeout(() => document.body.classList.remove("is-loading"), 2500);
+const safety = setTimeout(() => document.body.classList.remove("is-loading"), 6000);
 boot3D().finally(() => {
   clearTimeout(safety);
   applyTheme(document.documentElement.dataset.theme);
   moreMotion();
+  polish();
   factsFx();
   floatCta();
   dragSpin();
