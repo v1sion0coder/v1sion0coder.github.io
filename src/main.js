@@ -4,6 +4,7 @@ import "@fontsource/syne/800.css";
 import "@fontsource/jetbrains-mono/400.css";
 import "@fontsource/instrument-serif/400-italic.css";
 import Lenis from "lenis";
+import { REVIEWS } from "./reviews.js";
 import "./style.css";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -58,6 +59,68 @@ function workReel() {
       st.addEventListener("pointerleave", () => { st.style.setProperty("--ry", "0deg"); st.style.setProperty("--rx", "0deg"); });
     });
   }
+}
+
+// ---- Light / dark mode ----
+const THEME_KEY = "v1-theme";
+function applyTheme(t) {
+  document.documentElement.dataset.theme = t;
+  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", t === "light" ? "#f4efe8" : "#0a0a0b");
+  if (scene && scene.setTheme) scene.setTheme(t === "light");
+}
+const savedTheme = (() => { try { return localStorage.getItem(THEME_KEY); } catch { return null; } })() || "dark";
+document.documentElement.dataset.theme = savedTheme;
+document.querySelectorAll(".theme-btn").forEach((b) => b.addEventListener("click", () => {
+  const t = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+  try { localStorage.setItem(THEME_KEY, t); } catch {}
+  applyTheme(t);
+}));
+
+// ---- Reviews: only real ones, section stays hidden when empty ----
+if (REVIEWS.length) {
+  const esc = (x) => String(x).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  document.getElementById("reviews-list").innerHTML = REVIEWS.map((r) => `<figure class="rv"><blockquote>“${esc(r.quote)}”</blockquote><figcaption><b>${esc(r.name)}</b>${r.place ? " · " + esc(r.place) : ""}</figcaption></figure>`).join("");
+  document.getElementById("reviews").hidden = false;
+}
+
+// ---- Extra motion (all off for reduced motion) ----
+function moreMotion() {
+  if (reduced) return;
+  // cursor ring
+  if (window.matchMedia("(hover: hover)").matches) {
+    const c = document.createElement("div"); c.className = "cursor"; c.setAttribute("aria-hidden", "true"); document.body.appendChild(c);
+    let x = 0, y = 0, cx = 0, cy = 0;
+    window.addEventListener("pointermove", (e) => { x = e.clientX; y = e.clientY; c.classList.add("on"); }, { passive: true });
+    document.addEventListener("pointerleave", () => c.classList.remove("on"));
+    gsap.ticker.add(() => { cx += (x - cx) * 0.2; cy += (y - cy) * 0.2; c.style.transform = `translate(${cx}px, ${cy}px)`; });
+    document.querySelectorAll("a, button, summary, .grab").forEach((el) => {
+      el.addEventListener("pointerenter", () => c.classList.add("big"));
+      el.addEventListener("pointerleave", () => c.classList.remove("big"));
+    });
+    // magnetic buttons
+    document.querySelectorAll(".btn, .float-cta, .nav__cta, .pk__btn, .avail").forEach((el) => {
+      el.addEventListener("pointermove", (e) => {
+        const r = el.getBoundingClientRect();
+        gsap.to(el, { x: (e.clientX - r.left - r.width / 2) * 0.25, y: (e.clientY - r.top - r.height / 2) * 0.35, duration: 0.4, ease: "power3.out" });
+      });
+      el.addEventListener("pointerleave", () => gsap.to(el, { x: 0, y: 0, duration: 0.7, ease: "elastic.out(1, 0.4)" }));
+    });
+  }
+  // section titles rise in
+  gsap.utils.toArray(".section-head h2").forEach((h) => {
+    gsap.from(h, { yPercent: 60, rotate: 2, opacity: 0, duration: 1.2, ease: "expo.out", scrollTrigger: { trigger: h, start: "top 90%" } });
+  });
+  // marquee leans with scroll speed
+  const track = document.querySelector(".marquee__track");
+  if (track) {
+    const skew = gsap.quickTo(track, "skewX", { duration: 0.5, ease: "power3" });
+    ScrollTrigger.create({ onUpdate: (st) => skew(gsap.utils.clamp(-12, 12, st.getVelocity() / -250)) });
+  }
+  // gentle parallax on cards and mockups
+  gsap.utils.toArray(".shot, .pk__card, .how__steps li").forEach((el, i) => {
+    gsap.fromTo(el, { y: 40 + (i % 3) * 15 }, { y: -20, ease: "none", scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: true } });
+  });
+  gsap.from(".pk__card", { opacity: 0, y: 60, stagger: 0.12, duration: 1.1, ease: "expo.out", scrollTrigger: { trigger: ".pk", start: "top 85%" } });
 }
 
 // ---- Smooth scroll (off for reduced motion) ----
@@ -176,6 +239,8 @@ function scrollFx() {
 const safety = setTimeout(() => document.body.classList.remove("is-loading"), 2500);
 boot3D().finally(() => {
   clearTimeout(safety);
+  applyTheme(document.documentElement.dataset.theme);
+  moreMotion();
   factsFx();
   floatCta();
   dragSpin();

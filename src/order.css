@@ -181,3 +181,28 @@
 @media (max-width: 960px) { .needs__grid { max-width: none; } }
 @media (max-width: 420px) { .needs__grid { grid-template-columns: 1fr 1fr; } }
 .ord__intro { position: static; }
+
+/* ===== Saved progress + package select ===== */
+.resume { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 20px; background: rgba(71,194,122,.1); border-bottom: 1px solid rgba(71,194,122,.25); font-size: 14px; }
+.resume button { font: inherit; font-size: 13px; color: var(--bone); background: transparent; border: 1px solid rgba(255,255,255,.2); border-radius: 99px; padding: 5px 12px; cursor: pointer; }
+.fld select { font: inherit; font-family: var(--display); font-size: 16px; text-transform: none; letter-spacing: 0; color: var(--bone); background: rgba(0,0,0,.35); border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: 12px 14px; width: 100%; }
+.fld select:focus { outline: none; border-color: var(--hot); box-shadow: 0 0 0 3px rgba(255,77,26,.15); }
+.fld select option { color: #111; }
+
+/* ===== Light mode for the order page ===== */
+html[data-theme="light"] { --ink: #f4efe8; --bone: #17161a; --mute: #625d56; --line: rgba(23,22,26,.13); }
+html[data-theme="light"] .order-page { background: #f4efe8; color: #17161a; }
+html[data-theme="light"] .orb { opacity: .28; }
+html[data-theme="light"] .stars { display: none; }
+html[data-theme="light"] .nav--solid { background: rgba(244,239,232,.75); }
+html[data-theme="light"] .nav__logo, html[data-theme="light"] .nav__links a { color: #17161a; }
+html[data-theme="light"] .glass { background: rgba(255,255,255,.82); border-color: rgba(23,22,26,.1); box-shadow: 0 30px 70px rgba(80,50,20,.12); }
+html[data-theme="light"] .ord__lead, html[data-theme="light"] .help p, html[data-theme="light"] .ofaq p, html[data-theme="light"] .trust li, html[data-theme="light"] .perks span { color: #3d3934; }
+html[data-theme="light"] .bub--bot { background: #f1ebe3; border-color: rgba(23,22,26,.06); }
+html[data-theme="light"] .chat__form textarea, html[data-theme="light"] .fld input, html[data-theme="light"] .fld textarea, html[data-theme="light"] .fld select { background: #fff; color: #17161a; border-color: rgba(23,22,26,.15); }
+html[data-theme="light"] .chips button, html[data-theme="light"] .needs__grid button, html[data-theme="light"] .step, html[data-theme="light"] .trust li, html[data-theme="light"] .ofaq details, html[data-theme="light"] .eyebrow { background: #fff; color: #17161a; border-color: rgba(23,22,26,.12); }
+html[data-theme="light"] .avail, html[data-theme="light"] .resume button, html[data-theme="light"] .ghost { color: #17161a; border-color: rgba(23,22,26,.25); }
+html[data-theme="light"] .theme-btn { border-color: rgba(23,22,26,.3); color: #17161a; }
+html[data-theme="light"] .lcard { background: rgba(23,22,26,.04); border-color: rgba(23,22,26,.1); }
+html[data-theme="light"] .tl__dot { background: #fff; }
+html[data-theme="light"] .day span { background: rgba(23,22,26,.06); }

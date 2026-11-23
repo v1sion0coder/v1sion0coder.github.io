@@ -32,9 +32,32 @@ function bubble(log, who, text, cls = "") {
 function newOrder() {
   $("#new").hidden = false;
   const log = $("#log"), input = $("#chat-input"), form = $("#chat-form");
-  const convo = [];
+  const DRAFT = "v1-order-draft";
+  let convo = [];
   let brief = null, busy = false, lastSent = 0;
-  bubble(log, "bot", "Hi! I'm the Brief helper. Tell me about your business or project (any kind is welcome), or ask anything about what v1sion makes.");
+  const GREET = "Hi! I'm the Brief helper. Tell me about your business or project (any kind is welcome), or ask anything about what v1sion makes.";
+  bubble(log, "bot", GREET);
+  const FIELDS = ["package", "placeName", "placeType", "city", "languages", "needs", "timing", "summary", "name", "email", "phone"];
+  function saveDraft() {
+    try {
+      const f = $("#order-form"); const fields = {};
+      FIELDS.forEach((k) => { if (f[k] && f[k].value) fields[k] = f[k].value; });
+      localStorage.setItem(DRAFT, JSON.stringify({ at: Date.now(), convo, fields, briefShown: !f.hidden }));
+    } catch {}
+  }
+  function clearDraft() { try { localStorage.removeItem(DRAFT); } catch {} }
+  function restoreDraft() {
+    let d = null; try { d = JSON.parse(localStorage.getItem(DRAFT) || "null"); } catch {}
+    if (!d || Date.now() - d.at > 14 * 86400000 || (!d.convo?.length && !Object.keys(d.fields || {}).length)) return false;
+    convo = d.convo || [];
+    convo.forEach((m) => bubble(log, m.role === "assistant" ? "bot" : "me", m.content));
+    const f = $("#order-form");
+    Object.entries(d.fields || {}).forEach(([k, v]) => { if (f[k]) { f[k].value = v; f[k].dataset.touched = "1"; } });
+    if (convo.length) $("#chips").hidden = true;
+    if (d.briefShown) { f.hidden = false; setStep(2); }
+    $("#resume").hidden = false;
+    return true;
+  }
 
   async function send(text) {
     if (busy || !text.trim() || form.dataset.closed) return;
@@ -56,6 +79,7 @@ function newOrder() {
       if (out.junk) convo.push({ role: "user", content: text.trim() }, { role: "assistant", content: out.reply });
       bubble(log, "bot", out.reply);
       if (out.brief) showBrief(out.brief);
+      saveDraft();
       if (out.done) { form.dataset.closed = "1"; input.disabled = true; input.placeholder = "Chat finished: please use the brief below"; showBrief(brief || {}); }
     } catch (err) {
       typing.remove();
@@ -86,7 +110,18 @@ function newOrder() {
     send(b.dataset.need);
     if (window.innerWidth < 960) $(".chat").scrollIntoView({ behavior: "smooth", block: "start" });
   }));
-  $("#order-form").querySelectorAll("input, textarea").forEach((el) => el.addEventListener("input", () => { el.dataset.touched = "1"; }));
+  $("#order-form").querySelectorAll("input, textarea, select").forEach((el) => el.addEventListener("input", () => { el.dataset.touched = "1"; saveDraft(); }));
+  $("#start-over").addEventListener("click", () => {
+    if (!confirm("Start over? Your chat and brief on this device will be cleared.")) return;
+    clearDraft(); location.href = location.pathname;
+  });
+  const restored = restoreDraft();
+  // package from the main site's package cards (?package=Business)
+  const pkg = new URLSearchParams(location.search).get("package");
+  if (pkg && ["Starter", "Business", "Signature"].includes(pkg)) {
+    const f = $("#order-form"); f.package.value = pkg; f.package.dataset.touched = "1";
+    if (!restored) setTimeout(() => send(`I'm interested in the ${pkg} package.`), 400);
+  }
 
   $("#order-form").addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -97,9 +132,10 @@ function newOrder() {
     try {
       const out = await call("/orders", {
         name: f.name.value, email: f.email.value, phone: f.phone.value, website: f.website.value,
-        brief: { placeName: f.placeName.value, placeType: f.placeType.value, city: f.city.value, languages: f.languages.value, timing: f.timing.value, summary: f.summary.value, needs: f.needs.value.split(/,\s*/) },
+        brief: { package: f.package.value, placeName: f.placeName.value, placeType: f.placeType.value, city: f.city.value, languages: f.languages.value, timing: f.timing.value, summary: f.summary.value, needs: f.needs.value.split(/,\s*/) },
         transcript: convo,
       });
+      clearDraft();
       location.hash = "t=" + out.token;
       location.reload();
     } catch (ex) { err.textContent = ex.message; btn.disabled = false; }
@@ -130,7 +166,7 @@ async function myOrder(token) {
     renderTimeline(o.status);
     renderMineThread(o);
     const b = o.brief;
-    $("#mine-brief").innerHTML = [["Business", `${b.placeName} ${b.placeType ? "(" + b.placeType + ")" : ""}`], ["City", b.city], ["Needs", (b.needs || []).join(", ")], ["Languages", b.languages], ["When", b.timing], ["Summary", b.summary]]
+    $("#mine-brief").innerHTML = [["Package", b.package || "Not chosen"], ["Business", `${b.placeName} ${b.placeType ? "(" + b.placeType + ")" : ""}`], ["City", b.city], ["Needs", (b.needs || []).join(", ")], ["Languages", b.languages], ["When", b.timing], ["Summary", b.summary]]
       .map(([k, v]) => `<dt class="mono">${k}</dt><dd>${esc(v)}</dd>`).join("");
   };
   const load = async () => { try { render(await call("/orders/" + encodeURIComponent(token) + (document.hidden ? "" : "?seen=1"))); } catch (e) { $("#status-title").textContent = "Not found."; $("#status-lead").textContent = "This order link doesn't work. Check that you copied the whole link."; } };
@@ -200,6 +236,18 @@ function renderMineThread(o) {
   if (atBottom || !renderMineThread.done) log.scrollTop = log.scrollHeight;
   renderMineThread.done = true;
 }
+
+// ---------- Light / dark mode (shared with the main site) ----------
+(() => {
+  const KEY = "v1-theme";
+  let t = "dark"; try { t = localStorage.getItem(KEY) || "dark"; } catch {}
+  document.documentElement.dataset.theme = t;
+  document.querySelectorAll(".theme-btn").forEach((b) => b.addEventListener("click", () => {
+    t = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+    document.documentElement.dataset.theme = t;
+    try { localStorage.setItem(KEY, t); } catch {}
+  }));
+})();
 
 // Wake the server early (free hosting sleeps when idle).
 fetch(API + "/health").catch(() => {});

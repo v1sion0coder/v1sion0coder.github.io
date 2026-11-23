@@ -2,7 +2,7 @@ import {
   Vector3, WebGLRenderer, Scene, PerspectiveCamera, Group, Mesh, TorusKnotGeometry, CapsuleGeometry, IcosahedronGeometry,
   MeshStandardMaterial, MeshPhysicalMaterial, TorusGeometry, SphereGeometry, ShaderMaterial,
   PointLight, DirectionalLight, AmbientLight, PMREMGenerator, BufferGeometry, Float32BufferAttribute,
-  Points, Color, ACESFilmicToneMapping, SRGBColorSpace, AdditiveBlending, MathUtils,
+  Points, Color, NormalBlending, ACESFilmicToneMapping, SRGBColorSpace, AdditiveBlending, MathUtils,
 } from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 
@@ -141,7 +141,7 @@ export function createScene(canvas, { reducedMotion = false, front = null, targe
   dustGeo.setAttribute("aTint", new Float32BufferAttribute(tint, 3));
   const starMat = new ShaderMaterial({
     transparent: true, depthWrite: false, blending: AdditiveBlending,
-    uniforms: { uTime: { value: 0 }, uPx: { value: renderer.getPixelRatio() } },
+    uniforms: { uTime: { value: 0 }, uPx: { value: renderer.getPixelRatio() }, uLight: { value: 0 } },
     vertexShader: /* glsl */ `
       attribute float aSize; attribute float aPhase; attribute vec3 aTint;
       uniform float uTime; uniform float uPx;
@@ -154,7 +154,7 @@ export function createScene(canvas, { reducedMotion = false, front = null, targe
         gl_Position = projectionMatrix * mv;
       }`,
     fragmentShader: /* glsl */ `
-      varying vec3 vTint; varying float vTw; varying float vBig;
+      varying vec3 vTint; varying float vTw; varying float vBig; uniform float uLight;
       void main(){
         vec2 p = gl_PointCoord - 0.5;
         float d = length(p);
@@ -163,7 +163,8 @@ export function createScene(canvas, { reducedMotion = false, front = null, targe
         float cross = vBig * (exp(-abs(p.x) * 60.0) + exp(-abs(p.y) * 60.0)) * smoothstep(0.5, 0.0, d);
         float a = (pow(core, 3.0) * 0.9 + glow * 0.5 + cross * 0.8) * vTw;
         if (a < 0.01) discard;
-        gl_FragColor = vec4(vTint * a, a);
+        vec3 c = mix(vTint, vec3(0.85, 0.45, 0.25) * 0.8, uLight);
+        gl_FragColor = uLight > 0.5 ? vec4(c, a * 0.55) : vec4(vTint * a, a);
       }`,
   });
   const dust = new Points(dustGeo, starMat);
@@ -249,6 +250,11 @@ export function createScene(canvas, { reducedMotion = false, front = null, targe
     setProgress(p) { state.progress = p; if (reducedMotion) frame(performance.now()); },
     setEnd(e) { state.end = e; if (reducedMotion) frame(performance.now()); },
     setVisible(v) { state.visible = v; },
+    setTheme(light) {
+      renderer.setClearColor(light ? 0xf4efe8 : 0x0a0a0b, 1);
+      starMat.blending = light ? NormalBlending : AdditiveBlending; starMat.needsUpdate = true;
+      starMat.uniforms.uLight.value = light ? 1 : 0;
+    },
     spin(dx, dy) { drag.vx += dx * 0.004; drag.vy += dy * 0.004; },
   };
 }
