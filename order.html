@@ -8,10 +8,10 @@
   <meta name="theme-color" content="#0a0a0b" />
   <link rel="canonical" href="https://v1sion0coder.github.io/order.html" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-  <script type="module" crossorigin src="/assets/order-zuoY9SyZ.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/style-D8QidIqT.js">
-  <link rel="stylesheet" crossorigin href="/assets/style-WqqJZ06a.css">
-  <link rel="stylesheet" crossorigin href="/assets/order-DN3pg9cS.css">
+  <script type="module" crossorigin src="/assets/order-BsUbjrOc.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/style-jOw8UXc8.js">
+  <link rel="stylesheet" crossorigin href="/assets/style-D-DkO2ij.css">
+  <link rel="stylesheet" crossorigin href="/assets/order-Cm3X5Yd-.css">
 </head>
 <body class="order-page">
   <a class="skip" href="#main">Skip to content</a>
@@ -23,7 +23,7 @@
   <header class="nav nav--solid">
     <a class="nav__logo" href="/" aria-label="V1SION, home">V<span>1</span>SION</a>
     <span class="avail"><i></i> Taking orders now</span>
-    <nav aria-label="Main"><ul class="nav__links"><li><a href="/#work">Work</a></li><li><a href="/" class="nav__cta">← Back to site</a></li></ul></nav>
+    <nav aria-label="Main"><ul class="nav__links"><li><a href="/#work">Work</a></li><li><a href="/" class="nav__cta">← Back to site</a></li><li><button class="theme-btn" type="button" aria-label="Switch light or dark mode" title="Light / dark mode"><span class="theme-btn__sun" aria-hidden="true">☀</span><span class="theme-btn__moon" aria-hidden="true">☾</span></button></li></ul></nav>
   </header>
 
   <main id="main" class="ord">
@@ -83,6 +83,7 @@
             <span class="bot" aria-hidden="true"><i></i></span>
             <span class="chat__who"><b>Brief helper</b><small><span class="live"></span> Online · replies in seconds</small></span>
           </div>
+          <div class="resume" id="resume" hidden><span>Welcome back! I kept your chat and brief.</span><button type="button" id="start-over">Start over</button></div>
           <div class="chat__log" id="log"></div>
           <div class="chips" id="chips">
             <button type="button">What do you offer?</button>
@@ -103,6 +104,14 @@
             <p class="muted">Written from your chat. Edit anything before you send it.</p>
           </div>
           <div class="brief__grid">
+            <label class="fld wide">Package
+              <select name="package">
+                <option value="">Not sure yet, help me choose</option>
+                <option value="Starter">Starter: one beautiful page</option>
+                <option value="Business">Business: online orders or booking + control panel</option>
+                <option value="Signature">Signature: everything + custom 3D and motion</option>
+              </select>
+            </label>
             <label class="fld">Business name <input name="placeName" maxlength="120" /></label>
             <label class="fld">Type of business <input name="placeType" maxlength="80" /></label>
             <label class="fld">City / country <input name="city" maxlength="80" /></label>
