@@ -206,3 +206,6 @@ html[data-theme="light"] .theme-btn { border-color: rgba(23,22,26,.3); color: #1
 html[data-theme="light"] .lcard { background: rgba(23,22,26,.04); border-color: rgba(23,22,26,.1); }
 html[data-theme="light"] .tl__dot { background: #fff; }
 html[data-theme="light"] .day span { background: rgba(23,22,26,.06); }
+a.tg { color: #5cc3f5; font-weight: 700; text-decoration: none; }
+a.tg:hover { text-decoration: underline; }
+html[data-theme="light"] a.tg { color: #1d82c0; }
