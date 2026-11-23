@@ -290,3 +290,38 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; }
 .faq details a { color: var(--bone); text-decoration-color: var(--hot); }
 @media (max-width: 1000px) { .how__steps { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 600px) { .how__steps { grid-template-columns: 1fr; } }
+
+/* ===== Upgrade: serif accents, facts band, availability, floating CTA, drag hint ===== */
+.it { font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-weight: 400; letter-spacing: -0.01em; color: #ffb38f; padding-right: .05em; }
+.contact__title .it, .reel__head .it { background: linear-gradient(90deg, #ff6a2b, #ff9fd0 60%, #a58bff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+.avail { display: inline-flex; align-items: center; gap: 8px; margin-left: 18px; margin-right: auto; font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; text-decoration: none; color: #fff; border: 1px solid rgba(255,255,255,.25); border-radius: 99px; padding: 6px 12px; }
+.avail i { width: 7px; height: 7px; border-radius: 50%; background: #47c27a; box-shadow: 0 0 0 0 rgba(71,194,122,.7); animation: ping 2s infinite; }
+@keyframes ping { 70% { box-shadow: 0 0 0 8px rgba(71,194,122,0); } 100% { box-shadow: 0 0 0 0 rgba(71,194,122,0); } }
+@media (max-width: 860px) { .avail { display: none; } }
+
+.facts { position: relative; z-index: 1; padding: 0 var(--pad) clamp(60px, 10vh, 120px); }
+.facts__list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.facts__list li { padding: clamp(20px, 3vw, 36px) clamp(14px, 2vw, 28px); display: grid; gap: 10px; align-content: start; border-right: 1px solid var(--line); background: rgba(10,10,11,.55); backdrop-filter: blur(6px); }
+.facts__list li:last-child { border-right: 0; }
+.facts__list b { font-size: clamp(44px, 5vw, 84px); font-weight: 800; letter-spacing: -0.05em; line-height: .9; }
+.facts__list li:nth-child(odd) b { font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-weight: 400; color: #ffb38f; letter-spacing: -0.02em; }
+.facts__list span { color: #cfc9bf; font-size: 15px; line-height: 1.45; max-width: 24ch; }
+@media (max-width: 1000px) { .facts__list { grid-template-columns: 1fr 1fr; } .facts__list li { border-bottom: 1px solid var(--line); } }
+@media (max-width: 520px) { .facts__list { grid-template-columns: 1fr; } .facts__list li { border-right: 0; } }
+
+.float-cta { position: fixed; right: clamp(16px, 3vw, 32px); bottom: clamp(16px, 3vw, 32px); z-index: 60; display: inline-flex; gap: 12px; align-items: center; text-decoration: none; color: #fff; font-weight: 700; font-size: 15px; padding: 15px 22px; border-radius: 99px; background: linear-gradient(135deg, #ff6a2b, #ff4d1a 60%, #e0367a); box-shadow: 0 16px 36px rgba(255,77,26,.4); transform: translateY(140%); opacity: 0; transition: transform .6s var(--ease), opacity .4s; }
+.float-cta.on { transform: none; opacity: 1; }
+.float-cta:hover { box-shadow: 0 20px 44px rgba(255,77,26,.55); }
+.float-cta:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+.grab { position: absolute; right: 0; top: 12%; width: 55%; height: 58%; cursor: grab; touch-action: pan-y; z-index: 2; }
+.grab:active { cursor: grabbing; }
+.grab__hint { position: absolute; right: 18%; bottom: 6%; font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: #fff; background: rgba(10,10,11,.5); border: 1px solid rgba(255,255,255,.2); padding: 6px 12px; border-radius: 99px; backdrop-filter: blur(6px); transition: opacity .6s; pointer-events: none; }
+.grab.used .grab__hint { opacity: 0; }
+@media (max-width: 860px) { .grab { top: 4%; width: 100%; height: 48%; } .grab__hint { right: 50%; transform: translateX(50%); } }
+.no-webgl .grab { display: none; }
+
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.facts__list b small { font-size: .38em; letter-spacing: -0.02em; margin-left: .1em; }

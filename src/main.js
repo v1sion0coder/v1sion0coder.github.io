@@ -2,6 +2,8 @@ import "@fontsource/syne/400.css";
 import "@fontsource/syne/700.css";
 import "@fontsource/syne/800.css";
 import "@fontsource/jetbrains-mono/400.css";
+import "@fontsource/instrument-serif/400-italic.css";
+import Lenis from "lenis";
 import "./style.css";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -56,6 +58,60 @@ function workReel() {
       st.addEventListener("pointerleave", () => { st.style.setProperty("--ry", "0deg"); st.style.setProperty("--rx", "0deg"); });
     });
   }
+}
+
+// ---- Smooth scroll (off for reduced motion) ----
+let lenis = null;
+if (!reduced) {
+  lenis = new Lenis({ lerp: 0.1, smoothWheel: true });
+  lenis.on("scroll", ScrollTrigger.update);
+  gsap.ticker.add((t) => lenis.raf(t * 1000));
+  gsap.ticker.lagSmoothing(0);
+  document.querySelectorAll('a[href^="#"]').forEach((a) => a.addEventListener("click", (e) => {
+    const id = a.getAttribute("href"); if (id.length < 2) return;
+    const el = document.querySelector(id); if (!el) return;
+    e.preventDefault(); lenis.scrollTo(el, { offset: -10 });
+  }));
+}
+
+// ---- Facts: count up when visible ----
+function factsFx() {
+  document.querySelectorAll(".facts [data-count]").forEach((b) => {
+    const to = Number(b.dataset.count), suf = b.dataset.suffix || "";
+    if (reduced || to === 0) return;
+    const obj = { v: 0 };
+    const sfx = suf.trim() && /[a-z]/i.test(suf) ? `<small>${suf}</small>` : suf;
+    b.innerHTML = "0" + sfx;
+    gsap.to(obj, { v: to, duration: 1.4, ease: "power2.out", scrollTrigger: { trigger: b, start: "top 85%" }, onUpdate: () => { b.innerHTML = Math.round(obj.v) + sfx; } });
+  });
+  if (!reduced) gsap.from(".facts__list li", { opacity: 0, y: 30, stagger: 0.08, duration: 1, ease: "expo.out", scrollTrigger: { trigger: ".facts", start: "top 85%" } });
+}
+
+// ---- Floating order button: after the hero, hidden at the contact section ----
+function floatCta() {
+  const b = document.getElementById("float-cta"); if (!b) return;
+  const upd = () => {
+    const y = window.scrollY, h = window.innerHeight;
+    const contact = document.getElementById("contact");
+    const nearEnd = contact && contact.getBoundingClientRect().top < h * 0.8;
+    b.classList.toggle("on", y > h * 0.8 && !nearEnd);
+  };
+  window.addEventListener("scroll", upd, { passive: true }); upd();
+}
+
+// ---- Drag to spin the sculpture ----
+function dragSpin() {
+  const g = document.getElementById("grab"); if (!g) return;
+  let down = false, lx = 0, ly = 0;
+  g.addEventListener("pointerdown", (e) => { down = true; lx = e.clientX; ly = e.clientY; g.setPointerCapture(e.pointerId); g.classList.add("used"); });
+  g.addEventListener("pointermove", (e) => {
+    if (!down || !scene) return;
+    const dx = e.clientX - lx, dy = e.pointerType === "touch" ? 0 : e.clientY - ly;
+    lx = e.clientX; ly = e.clientY;
+    scene.spin(dx, dy);
+  });
+  const up = () => { down = false; };
+  g.addEventListener("pointerup", up); g.addEventListener("pointercancel", up);
 }
 
 // ---- 3D ----
@@ -120,6 +176,9 @@ function scrollFx() {
 const safety = setTimeout(() => document.body.classList.remove("is-loading"), 2500);
 boot3D().finally(() => {
   clearTimeout(safety);
+  factsFx();
+  floatCta();
+  dragSpin();
   workReel();
   scrollFx();
   intro();

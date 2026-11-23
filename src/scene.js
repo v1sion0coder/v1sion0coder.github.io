@@ -170,6 +170,7 @@ export function createScene(canvas, { reducedMotion = false, front = null, targe
   scene.add(dust);
 
   // ---------- State ----------
+  const drag = { x: 0, y: 0, vx: 0, vy: 0 };
   const state = { open: 0.15, progress: 0, end: 0, mx: 0, my: 0, tx: 0, ty: 0, running: true, visible: true };
 
   function layout() {
@@ -194,8 +195,9 @@ export function createScene(canvas, { reducedMotion = false, front = null, targe
     const p = state.progress;
     const e = state.end;
     const spin = reducedMotion ? 0 : t;
-    knot.rotation.x = spin * 0.12 + p * 1.4;
-    knot.rotation.y = spin * 0.18 + p * 2.0;
+    drag.vx *= 0.94; drag.vy *= 0.94; drag.x += drag.vx; drag.y += drag.vy;
+    knot.rotation.x = spin * 0.12 + p * 1.4 + drag.y;
+    knot.rotation.y = spin * 0.18 + p * 2.0 + drag.x;
     knot.scale.setScalar(1 + p * 0.25 - e * 0.15 + (reducedMotion ? 0 : Math.sin(t * 0.9) * 0.015));
     floaters.forEach((f, i) => {
       const ang = f.a + spin * f.s * 0.35 + p * (1 + i * 0.2);
@@ -247,6 +249,7 @@ export function createScene(canvas, { reducedMotion = false, front = null, targe
     setProgress(p) { state.progress = p; if (reducedMotion) frame(performance.now()); },
     setEnd(e) { state.end = e; if (reducedMotion) frame(performance.now()); },
     setVisible(v) { state.visible = v; },
+    spin(dx, dy) { drag.vx += dx * 0.004; drag.vy += dy * 0.004; },
   };
 }
 
