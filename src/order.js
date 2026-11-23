@@ -31,6 +31,19 @@ function bubble(log, who, text, cls = "") {
   return d;
 }
 
+// ---------- Files ----------
+const MAX_FILE = 5 * 1024 * 1024;
+const fmtSize = (n) => (n > 1048576 ? (n / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(n / 1024)) + " KB");
+const readAsData = (file) => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(file); });
+async function uploadFiles(token, files, onEach) {
+  for (const f of files) {
+    const data = await readAsData(f);
+    await call(`/orders/${encodeURIComponent(token)}/files`, { name: f.name, type: f.type || "application/octet-stream", data });
+    onEach && onEach(f);
+  }
+}
+const fileIcon = (t) => (t.startsWith("image/") ? "🖼️" : t === "application/pdf" ? "📄" : t.includes("zip") ? "🗜️" : "📎");
+
 // ---------- New order: Brief helper chat ----------
 function newOrder() {
   $("#new").hidden = false;
@@ -130,6 +143,22 @@ function newOrder() {
     if (!restored) setTimeout(() => send(`I'm interested in the ${pkg} package.`), 400);
   }
 
+  // optional files picked before sending (uploaded right after the order is created)
+  let picked = [];
+  const renderPicked = () => {
+    $("#upl-list").innerHTML = picked.map((f, i) => `<li><span>${fileIcon(f.type || "")} ${esc(f.name)} <small>${fmtSize(f.size)}</small></span><button type="button" data-rm="${i}" aria-label="Remove ${esc(f.name)}">✕</button></li>`).join("");
+    $("#upl-list").querySelectorAll("[data-rm]").forEach((b) => b.addEventListener("click", () => { picked.splice(Number(b.dataset.rm), 1); renderPicked(); }));
+  };
+  $("#upl-input").addEventListener("change", (e) => {
+    const err = $("#order-err"); err.textContent = "";
+    [...e.target.files].forEach((f) => {
+      if (f.size > MAX_FILE) { err.textContent = `${f.name} is larger than 5 MB.`; return; }
+      if (picked.length >= 10) { err.textContent = "You can add up to 10 files."; return; }
+      picked.push(f);
+    });
+    e.target.value = ""; renderPicked();
+  });
+
   $("#order-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     const f = e.currentTarget, err = $("#order-err");
@@ -143,6 +172,10 @@ function newOrder() {
         transcript: convo,
       });
       clearDraft();
+      if (picked.length) {
+        btn.querySelector("span").textContent = "Uploading files…";
+        try { await uploadFiles(out.token, picked); } catch { /* files can be added later on the order page */ }
+      }
       await celebrate(btn);
       location.hash = "t=" + out.token;
       location.reload();
@@ -173,6 +206,7 @@ async function myOrder(token) {
     $("#mine-status").textContent = (STATUS[o.status] || STATUS.new)[0].replace(".", "") + " · usually replies within 2 working days";
     renderTimeline(o.status);
     renderMineThread(o);
+    renderFiles(o, token);
     const b = o.brief;
     $("#mine-brief").innerHTML = [["Package", b.package || "Not chosen"], ["Business", `${b.placeName} ${b.placeType ? "(" + b.placeType + ")" : ""}`], ["City", b.city], ["Needs", (b.needs || []).join(", ")], ["Languages", b.languages], ["When", b.timing], ["Summary", b.summary]]
       .map(([k, v]) => `<dt class="mono">${k}</dt><dd>${esc(v)}</dd>`).join("");
@@ -188,6 +222,15 @@ async function myOrder(token) {
   });
   grow($("#mine-input"));
   $("#mine-input").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); $("#mine-form").requestSubmit(); } });
+  $("#mine-upl").addEventListener("change", async (e) => {
+    const err = $("#files-err"); err.textContent = "";
+    const files = [...e.target.files].filter((f) => { if (f.size > MAX_FILE) { err.textContent = `${f.name} is larger than 5 MB.`; return false; } return true; });
+    e.target.value = "";
+    if (!files.length) return;
+    const lab = document.querySelector(".files__add"); lab.textContent = "Uploading…";
+    try { await uploadFiles(token, files); await load(); } catch (ex) { err.textContent = ex.message; }
+    lab.textContent = "＋ Upload";
+  });
   $("#copy-link").addEventListener("click", () => { navigator.clipboard?.writeText(location.href); $("#copy-link span").textContent = "Copied"; });
 }
 
@@ -215,6 +258,17 @@ function renderTimeline(status) {
   }
   const idx = Math.max(0, FLOW.findIndex(([s]) => s === status));
   tl.innerHTML = FLOW.map(([, t, d], i) => `<li class="tl ${i < idx || (i === idx && status === "done") ? "tl--done" : i === idx ? "tl--now" : ""}"><span class="tl__dot">${i < idx || (i === idx && status === "done") ? "✓" : i + 1}</span><span><b>${t}</b><small>${d}</small></span></li>`).join("");
+}
+
+// ---------- Client files box ----------
+let filesSig = "";
+function renderFiles(o, token) {
+  const sig = (o.files || []).map((f) => f.id).join();
+  if (sig === filesSig) return; filesSig = sig;
+  const list = $("#files-list"); if (!list) return;
+  const files = o.files || [];
+  list.innerHTML = files.length ? files.map((f) => `<li><a href="${esc(API)}/orders/${encodeURIComponent(token)}/files/${encodeURIComponent(f.id)}" target="_blank" rel="noopener">${fileIcon(f.type)} ${esc(f.name)}</a><small>${f.from === "studio" ? "from v1sion" : "from you"} · ${fmtSize(f.size)}</small></li>`).join("")
+    : '<li class="muted">No files yet. Upload your logo, photos or menu here any time. No logo? I\'ll design a simple one for you.</li>';
 }
 
 // ---------- Client thread (links, days, seen) ----------

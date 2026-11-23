@@ -426,3 +426,7 @@ html[data-theme="light"] .end__fill { -webkit-text-stroke-color: rgba(23,22,26,.
 .btn:hover, .btn:focus-visible { color: #fff; }
 .btn--tg::before { background: #1677b3; }
 @media (prefers-reduced-motion: reduce) { .btn::before { transition: none; } }
+.manifesto__text { text-shadow: 0 4px 30px rgba(10,10,11,.85), 0 0 2px rgba(10,10,11,.6); }
+html[data-theme="light"] .manifesto__text { text-shadow: 0 4px 30px rgba(244,239,232,.9); }
+.manifesto { background: linear-gradient(90deg, rgba(10,10,11,.75), rgba(10,10,11,0) 70%); }
+html[data-theme="light"] .manifesto { background: linear-gradient(90deg, rgba(244,239,232,.8), rgba(244,239,232,0) 70%); }

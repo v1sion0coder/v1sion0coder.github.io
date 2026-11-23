@@ -220,3 +220,24 @@ html[data-theme="light"] a.tg { color: #1d82c0; }
 .needs__grid button, .trust li, .send, .go { transition: border-color .3s, background .3s, box-shadow .3s; }
 .needs__grid button:hover { transform: none; }
 .step, .step__n, .chips button, .bub, .lcard, .ghost, .manual { transition-property: border-color, background, color, box-shadow; }
+
+/* ===== Uploads ===== */
+.upl { display: grid; gap: 8px; }
+.upl__drop { display: grid; gap: 4px; justify-items: start; padding: 16px; border-radius: 14px; border: 1.5px dashed rgba(255,255,255,.2); cursor: pointer; text-transform: none; letter-spacing: 0; font-family: var(--display); color: var(--bone); transition: border-color .3s, background .3s; }
+.upl__drop:hover { border-color: var(--hot); background: rgba(255,77,26,.06); }
+.upl__drop b { font-size: 15px; } .upl__drop small { color: var(--mute); font-size: 12px; }
+.upl__list, .files__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; text-transform: none; letter-spacing: 0; font-family: var(--display); }
+.upl__list li, .files__list li { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 12px; background: rgba(255,255,255,.05); font-size: 14px; color: var(--bone); }
+.upl__list small, .files__list small { color: var(--mute); font-size: 12px; margin-left: 6px; }
+.upl__list button { background: none; border: 0; color: var(--mute); cursor: pointer; font-size: 14px; }
+.upl__list button:hover { color: #ff7a6b; }
+.upl__note { font-family: var(--display); text-transform: none; letter-spacing: 0; font-size: 14px; color: #ffb38f; }
+.files { padding: 18px 22px; display: grid; gap: 12px; }
+.files__head { display: flex; justify-content: space-between; align-items: center; }
+.files__add { cursor: pointer; }
+.files__list a { color: var(--bone); text-decoration: none; font-weight: 600; } .files__list a:hover { text-decoration: underline; }
+.files__list li.muted { color: var(--mute); background: none; padding: 0; }
+html[data-theme="light"] .upl__drop { border-color: rgba(23,22,26,.25); color: #17161a; }
+html[data-theme="light"] .upl__list li, html[data-theme="light"] .files__list li { background: rgba(23,22,26,.05); color: #17161a; }
+html[data-theme="light"] .files__list a { color: #17161a; }
+html[data-theme="light"] .upl__note { color: #c24a17; }

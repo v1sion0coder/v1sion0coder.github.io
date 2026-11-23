@@ -4,6 +4,7 @@ import {
   PointLight, DirectionalLight, AmbientLight, PMREMGenerator, BufferGeometry, Float32BufferAttribute,
   Points, Color, NormalBlending, ACESFilmicToneMapping, SRGBColorSpace, AdditiveBlending, MathUtils,
 } from "three";
+import { createCity } from "./city.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 
 const HOT = new Color("#ff4d1a");
@@ -88,7 +89,7 @@ export function createScene(canvas, { reducedMotion = false, front = null, targe
   const PERIOD = 6.4;
   function updateFlyers(t, heroP) {
     let rect = target && target.getBoundingClientRect();
-    const usable = rect && rect.width > 0 && heroP < 0.6 && !reducedMotion;
+    const usable = rect && rect.width > 0 && heroP < 0.12 && !reducedMotion;
     flyers.forEach((f) => { f.m.visible = false; f.front = false; });
     if (!usable) return;
     // the O's centre (its inner hole) as a ray from the camera
@@ -170,6 +171,9 @@ export function createScene(canvas, { reducedMotion = false, front = null, targe
   const dust = new Points(dustGeo, starMat);
   scene.add(dust);
 
+  // ---------- Floating city of websites ----------
+  const city = createCity(scene, { isSmall });
+
   // ---------- State ----------
   const drag = { x: 0, y: 0, vx: 0, vy: 0 };
   const state = { open: 0.15, progress: 0, end: 0, mx: 0, my: 0, tx: 0, ty: 0, running: true, visible: true };
@@ -210,7 +214,13 @@ export function createScene(canvas, { reducedMotion = false, front = null, targe
     ring.rotation.x = 1.2 + Math.sin(spin * 0.3) * 0.1;
     rig.rotation.y = state.mx * 0.3 + p * -0.3 + e * 0.25;
     rig.rotation.x = -state.my * 0.2 + p * 0.2;
-    camera.position.z = 18 - p * 5 + e * 3;
+    // dive into the city while scrolling, fly back out at the contact section
+    const dive = p * (1 - e);
+    camera.position.z = 18 - dive * Math.min(city.depth, 48) + e * 3;
+    camera.position.x = -Math.sin(Math.min(dive * 4, 1) * Math.PI / 2) * 3.2 * (1 - dive) - Math.sin(dive * Math.PI) * 1.2 + state.mx * 0.6;
+    camera.position.y = -dive * 0.8 - state.my * 0.4;
+    camera.rotation.y = -Math.sin(dive * Math.PI * 2) * 0.08;
+    city.update(t, reducedMotion);
     dust.rotation.y = t * 0.015;
     starMat.uniforms.uTime.value = t;
     warm.intensity = 240 + Math.sin(t * 1.1) * 40;
@@ -254,6 +264,7 @@ export function createScene(canvas, { reducedMotion = false, front = null, targe
       renderer.setClearColor(light ? 0xf4efe8 : 0x0a0a0b, 1);
       starMat.blending = light ? NormalBlending : AdditiveBlending; starMat.needsUpdate = true;
       starMat.uniforms.uLight.value = light ? 1 : 0;
+      city.setTheme(light);
     },
     spin(dx, dy) { drag.vx += dx * 0.004; drag.vy += dy * 0.004; },
   };
