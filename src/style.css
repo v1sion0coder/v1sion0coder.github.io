@@ -386,3 +386,4 @@ html[data-theme="light"] ::selection { color: #fff; }
 html[data-theme="light"] .nav { mix-blend-mode: normal; background: linear-gradient(rgba(244,239,232,.85), rgba(244,239,232,0)); }
 html[data-theme="light"] .nav__logo, html[data-theme="light"] .nav__links a { color: #17161a; }
 html[data-theme="light"] .theme-btn { color: #17161a; border-color: rgba(23,22,26,.3); }
+@media (max-width: 560px) { .nav__links li:nth-last-child(2) { display: list-item; } .nav__links { align-items: center; } }
