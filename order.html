@@ -8,10 +8,10 @@
   <meta name="theme-color" content="#0a0a0b" />
   <link rel="canonical" href="https://v1sion0coder.github.io/order.html" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-  <script type="module" crossorigin src="/assets/order-BmqWowmY.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/gsap-C6vQuWPk.js">
-  <link rel="stylesheet" crossorigin href="/assets/gsap-B7SbL-x2.css">
-  <link rel="stylesheet" crossorigin href="/assets/order-Cdpa6_35.css">
+  <script type="module" crossorigin src="/assets/order-CPJuZouT.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/gsap-DnXDmYIp.js">
+  <link rel="stylesheet" crossorigin href="/assets/gsap-DVz0z0SL.css">
+  <link rel="stylesheet" crossorigin href="/assets/order-kXzmzBKq.css">
 </head>
 <body class="order-page">
   <a class="skip" href="#main">Skip to content</a>
@@ -120,6 +120,13 @@
             <label class="fld wide">What the site must do <input name="needs" maxlength="600" placeholder="e.g. quote form, booking, gallery" /></label>
             <label class="fld wide">When <input name="timing" maxlength="120" placeholder="e.g. as soon as possible, or by March" /></label>
             <label class="fld wide">Summary <textarea name="summary" rows="4" maxlength="1500"></textarea></label>
+            <div class="fld wide upl">
+              <span>Logo, photos or menu <small>(optional)</small></span>
+              <label class="upl__drop" for="upl-input"><b>＋ Add files</b><small>Images, PDF, Word, Excel or ZIP · up to 5 MB each · max 10</small></label>
+              <input id="upl-input" type="file" multiple accept="image/png,image/jpeg,image/webp,image/gif,application/pdf,.doc,.docx,.xls,.xlsx,.zip,.txt" class="sr" />
+              <ul class="upl__list" id="upl-list"></ul>
+              <p class="upl__note">No logo yet? No problem: I'll design a simple, clean logo for you.</p>
+            </div>
           </div>
           <div class="brief__head brief__head--sub">
             <span class="brief__tag">Step 3</span>
@@ -160,6 +167,11 @@
             <textarea id="mine-input" rows="1" maxlength="2000" placeholder="Write a message…" required></textarea>
             <button type="submit" class="send" aria-label="Send message"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
           </form>
+        </div>
+        <div class="files glass" id="files-box">
+          <div class="files__head"><b>Files</b><label class="ghost files__add" for="mine-upl">＋ Upload</label><input id="mine-upl" type="file" multiple accept="image/png,image/jpeg,image/webp,image/gif,application/pdf,.doc,.docx,.xls,.xlsx,.zip,.txt" class="sr" /></div>
+          <ul class="files__list" id="files-list"></ul>
+          <p class="err" id="files-err" role="alert"></p>
         </div>
         <details class="brief brief--read glass"><summary><span>Your brief</span><span aria-hidden="true">▾</span></summary><dl id="mine-brief"></dl></details>
       </div>
