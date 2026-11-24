@@ -177,13 +177,40 @@ function dragSpin() {
   g.addEventListener("pointerup", up); g.addEventListener("pointercancel", up);
 }
 
+// ---- Clickable 3D screens ----
+function goToProject(pick) {
+  const el = pick.slide >= 0 ? document.querySelectorAll(".slide")[pick.slide] : document.getElementById("work");
+  if (!el) return;
+  screenTip(null);
+  if (lenis) lenis.scrollTo(el, { offset: pick.slide >= 0 ? -80 : 0, duration: 1.6 });
+  else el.scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
+}
+let tipEl = null;
+const lastPtr = { x: -200, y: -200 };
+window.addEventListener("pointermove", (e) => { lastPtr.x = e.clientX; lastPtr.y = e.clientY; }, { passive: true });
+function screenTip(pick) {
+  if (!tipEl) {
+    tipEl = document.createElement("div"); tipEl.className = "screen-tip mono"; tipEl.setAttribute("aria-hidden", "true");
+    document.body.appendChild(tipEl);
+    const move = (x, y) => { tipEl.style.transform = `translate(${x + 18}px, ${y + 18}px)`; };
+    move(lastPtr.x, lastPtr.y);
+    window.addEventListener("pointermove", (e) => move(e.clientX, e.clientY), { passive: true });
+  }
+  document.body.classList.toggle("over-screen", !!pick);
+  if (pick) tipEl.textContent = pick.slide >= 0 ? `Open ${pick.name} →` : "See the work ↓";
+  const ring = document.querySelector(".cursor"); if (ring) ring.classList.toggle("big", !!pick);
+}
+
 // ---- 3D ----
 let scene = null;
 async function boot3D() {
   const { createScene, hasWebGL } = await import("./scene.js");
   if (!hasWebGL()) { document.body.classList.add("no-webgl"); return; }
   try {
-    scene = createScene(document.getElementById("gl"), { reducedMotion: reduced, front: document.getElementById("gl-front"), target: document.querySelector(".o-letter") });
+    scene = createScene(document.getElementById("gl"), {
+      reducedMotion: reduced, front: document.getElementById("gl-front"), target: document.querySelector(".o-letter"),
+      onPick: goToProject, onHover: screenTip,
+    });
   } catch (err) {
     document.body.classList.add("no-webgl");
   }
@@ -281,7 +308,7 @@ function polish() {
 function scrollFx() {
   // hero progress drives the aperture
   ScrollTrigger.create({
-    trigger: ".hero", start: "top top", endTrigger: ".manifesto", end: "bottom top", scrub: true,
+    trigger: ".hero", start: "top top", endTrigger: ".manifesto", end: "bottom 65%", scrub: true,
     onUpdate: (st) => scene && scene.setProgress(st.progress),
   });
   ScrollTrigger.create({

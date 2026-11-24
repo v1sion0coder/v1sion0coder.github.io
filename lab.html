@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab — small experiments · V1SION Digital Studio</title>
+  <meta name="description" content="Lab: small interactive experiments in motion, type and 3D that later grow into client websites." />
+  <meta name="theme-color" content="#0a0a0b" />
+  <link rel="canonical" href="https://v1sion0coder.github.io/lab.html" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+</head>
+<body class="lab-page">
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="nav nav--solid">
+    <a class="nav__logo" href="/" aria-label="V1SION, home">V<span>1</span>SION</a>
+    <a class="avail" href="/order.html"><i></i> Taking orders now</a>
+    <nav aria-label="Main"><ul class="nav__links"><li><a href="/#work">Work</a></li><li><a href="/order.html" class="nav__cta">Order</a></li><li><button class="theme-btn" type="button" aria-label="Switch light or dark mode" title="Light / dark mode"><span class="theme-btn__sun" aria-hidden="true">☀</span><span class="theme-btn__moon" aria-hidden="true">☾</span></button></li></ul></nav>
+  </header>
+
+  <main id="main" class="lab">
+    <section class="lab__intro">
+      <p class="mono">(Lab) — small experiments</p>
+      <h1 class="lab__title">Things I try <em class="it">before</em> they become websites.</h1>
+      <p class="lab__lead">Little pieces of motion, type and light. Each one is live, so play with it. The best ones end up in client sites as a hero, a menu or a booking page.</p>
+    </section>
+
+    <article class="exp" id="liquid">
+      <div class="exp__stage"><canvas class="exp__cv" data-exp="liquid" aria-label="Moving colour field that follows your pointer" role="img"></canvas></div>
+      <div class="exp__info">
+        <p class="mono">01 — Shader</p>
+        <h2 class="exp__t">Liquid light</h2>
+        <p class="exp__d">A soft field of colour that leans towards your pointer or finger. It runs on the graphics card, so it stays smooth.</p>
+        <p class="exp__use"><b>Could become:</b> a hero for a cocktail bar, where the colours match the drinks.</p>
+      </div>
+    </article>
+
+    <article class="exp exp--flip" id="menu">
+      <div class="exp__stage"><canvas class="exp__cv" data-exp="menu" aria-label="Menu items that fall and can be thrown around" role="img"></canvas><p class="exp__hint mono">Drag and throw</p></div>
+      <div class="exp__info">
+        <p class="mono">02 — Physics</p>
+        <h2 class="exp__t">A menu that falls</h2>
+        <p class="exp__d">Menu items drop into the frame and pile up. Grab one and throw it. Tap the frame to drop them again.</p>
+        <p class="exp__use"><b>Could become:</b> a playful “today's specials” block for a bakery.</p>
+      </div>
+    </article>
+
+    <article class="exp" id="type">
+      <div class="exp__stage exp__stage--type"><p class="weight" data-exp="type" aria-label="Fresh bread">Fresh bread</p></div>
+      <div class="exp__info">
+        <p class="mono">03 — Type</p>
+        <h2 class="exp__t">Type with weight</h2>
+        <p class="exp__d">Letters near the pointer grow heavier and taller, as if you were pressing dough.</p>
+        <p class="exp__use"><b>Could become:</b> the big name on a bakery or patisserie homepage.</p>
+      </div>
+    </article>
+
+    <section class="lab__cta">
+      <h2>Want one of these, <em class="it">made for you?</em></h2>
+      <a class="btn lab__btn" href="/order.html">Start an order <span aria-hidden="true">→</span></a>
+    </section>
+  </main>
+
+  <script type="module" src="/src/lab.js"></script>
+</body>
+</html>

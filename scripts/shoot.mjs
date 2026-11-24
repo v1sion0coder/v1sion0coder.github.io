@@ -2,7 +2,7 @@
 //   node scripts/shoot.mjs <outDir> <url> <width> <height> [scrollFraction|#selector ...]
 // Prints console errors and horizontal overflow for each run.
 import { spawn } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
@@ -58,3 +58,4 @@ const of = await evalJs(`(()=>{const W=document.documentElement.clientWidth;cons
 console.log('overflow:', of);
 console.log(logs.length ? 'console:\n' + [...new Set(logs)].join('\n') : 'console: clean');
 ws.close(); chrome.kill();
+setTimeout(() => { try { rmSync(profile, { recursive: true, force: true }); } catch {} }, 1500);

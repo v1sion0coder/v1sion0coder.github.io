@@ -2,14 +2,14 @@ import {
   Vector3, WebGLRenderer, Scene, PerspectiveCamera, Group, Mesh, TorusKnotGeometry, CapsuleGeometry, IcosahedronGeometry,
   MeshStandardMaterial, MeshPhysicalMaterial, TorusGeometry, SphereGeometry, ShaderMaterial,
   PointLight, DirectionalLight, AmbientLight, PMREMGenerator, BufferGeometry, Float32BufferAttribute,
-  Points, Color, NormalBlending, ACESFilmicToneMapping, SRGBColorSpace, AdditiveBlending, MathUtils,
+  Points, Color, NormalBlending, Raycaster, Vector2, Quaternion, ACESFilmicToneMapping, SRGBColorSpace, AdditiveBlending, MathUtils,
 } from "three";
 import { createCity } from "./city.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 
 const HOT = new Color("#ff4d1a");
 
-export function createScene(canvas, { reducedMotion = false, front = null, target = null } = {}) {
+export function createScene(canvas, { reducedMotion = false, front = null, target = null, onPick = null, onHover = null } = {}) {
   const isSmall = Math.min(window.innerWidth, window.innerHeight) < 700;
   const renderer = new WebGLRenderer({ canvas, antialias: !isSmall, alpha: false, powerPreference: "high-performance" });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, isSmall ? 1.5 : 1.75));
@@ -178,6 +178,27 @@ export function createScene(canvas, { reducedMotion = false, front = null, targe
   const drag = { x: 0, y: 0, vx: 0, vy: 0 };
   const state = { open: 0.15, progress: 0, end: 0, mx: 0, my: 0, tx: 0, ty: 0, running: true, visible: true };
 
+  // ---------- Clickable screens: hover, then fly the camera in ----------
+  const raycaster = new Raycaster(), ndc = new Vector2();
+  const fly = { f: 0, to: 0, at: 0, mesh: null, pos: new Vector3(), look: new Vector3(), done: false };
+  const baseQ = new Quaternion(), lookQ = new Quaternion(), basePos = new Vector3(), nrm = new Vector3();
+  let hovered = null;
+  function pickAt(cx, cy) {
+    if (!state.visible) return null;
+    ndc.set((cx / window.innerWidth) * 2 - 1, -(cy / window.innerHeight) * 2 + 1);
+    raycaster.setFromCamera(ndc, camera);
+    const hit = raycaster.intersectObjects(city.pickables, false)[0];
+    return hit && hit.distance < 40 ? hit.object : null;
+  }
+  function startFly(mesh) {
+    mesh.getWorldPosition(fly.look);
+    nrm.set(0, 0, 1).applyQuaternion(mesh.getWorldQuaternion(new Quaternion()));
+    if (nrm.dot(tmp.copy(camera.position).sub(fly.look)) < 0) nrm.negate();
+    const dist = 3.4 * mesh.scale.x * (camera.aspect < 0.8 ? 1.8 : 1);
+    fly.pos.copy(fly.look).addScaledVector(nrm, dist);
+    fly.mesh = mesh; fly.to = 1; fly.at = performance.now(); fly.done = false;
+  }
+
   function layout() {
     const w = window.innerWidth, h = window.innerHeight;
     renderer.setSize(w, h, false);
@@ -192,6 +213,20 @@ export function createScene(canvas, { reducedMotion = false, front = null, targe
   layout();
 
   let t0 = performance.now();
+  const perf = { n: 0, sum: 0, last: 0, low: false };
+  function watchPerf(now) {
+    if (perf.low || perf.n > 120) return;
+    if (perf.last) { perf.sum += now - perf.last; perf.n++; }
+    perf.last = now;
+    if (perf.n === 120 && perf.sum / perf.n > 26) {   // under ~38 fps: lighten the scene
+      perf.low = true;
+      renderer.setPixelRatio(1); if (frontR) frontR.setPixelRatio(1);
+      starMat.uniforms.uPx.value = 1;
+      dustGeo.setDrawRange(0, Math.floor(count / 2));
+      city.lowPower();
+      layout();
+    }
+  }
   function frame(now) {
     const t = (now - t0) / 1000;
     state.mx += (state.tx - state.mx) * 0.05;
@@ -219,8 +254,23 @@ export function createScene(canvas, { reducedMotion = false, front = null, targe
     camera.position.z = 18 - dive * Math.min(city.depth, 48) + e * 3;
     camera.position.x = -Math.sin(Math.min(dive * 4, 1) * Math.PI / 2) * 3.2 * (1 - dive) - Math.sin(dive * Math.PI) * 1.2 + state.mx * 0.6;
     camera.position.y = -dive * 0.8 - state.my * 0.4;
-    camera.rotation.y = -Math.sin(dive * Math.PI * 2) * 0.08;
+    camera.rotation.set(0, -Math.sin(dive * Math.PI * 2) * 0.08, 0);
     city.update(t, reducedMotion);
+    // 0.9s in (stopping short of the screen), then ease back out while the page scrolls
+    const ft = (now - fly.at) / 900;
+    fly.f = fly.to === 1 ? Math.min(ft, 1) : Math.max(fly.f - 0.025, 0);
+    if (fly.f > 0.001) {
+      const f = (1 - Math.pow(1 - fly.f, 3)) * 0.72;
+      basePos.copy(camera.position); baseQ.copy(camera.quaternion);
+      camera.position.lerpVectors(basePos, fly.pos, f);
+      camera.lookAt(fly.look); lookQ.copy(camera.quaternion);
+      camera.quaternion.slerpQuaternions(baseQ, lookQ, f);
+      if (fly.to === 1 && fly.f >= 1 && !fly.done) {
+        fly.done = true;
+        if (onPick) onPick(fly.mesh.userData.pick);
+        fly.to = 0;
+      }
+    }
     dust.rotation.y = t * 0.015;
     starMat.uniforms.uTime.value = t;
     warm.intensity = 240 + Math.sin(t * 1.1) * 40;
@@ -239,7 +289,7 @@ export function createScene(canvas, { reducedMotion = false, front = null, targe
   }
 
   function loop(now) {
-    if (state.running && state.visible) frame(now);
+    if (state.running && state.visible) { frame(now); watchPerf(now); } else perf.last = 0;
     if (!reducedMotion) requestAnimationFrame(loop);
   }
 
@@ -255,6 +305,22 @@ export function createScene(canvas, { reducedMotion = false, front = null, targe
     state.ty = (ev.clientY / window.innerHeight) * 2 - 1;
   }, { passive: true });
   document.addEventListener("visibilitychange", () => { state.running = !document.hidden; });
+  const blocked = (el) => el && el.closest && el.closest("a, button, input, textarea, select, summary, label, .nav, .hero__title, .hero__foot, .float-cta");
+  window.addEventListener("pointermove", (ev) => {
+    if (ev.pointerType === "touch") return;
+    const m = blocked(ev.target) ? null : pickAt(ev.clientX, ev.clientY);
+    if (m !== hovered) { hovered = m; if (onHover) onHover(m ? m.userData.pick : null); }
+  }, { passive: true });
+  let downAt = null;
+  window.addEventListener("pointerdown", (ev) => { downAt = { x: ev.clientX, y: ev.clientY }; }, { passive: true });
+  window.addEventListener("pointerup", (ev) => {
+    if (!downAt || Math.hypot(ev.clientX - downAt.x, ev.clientY - downAt.y) > 8) return;   // a drag, not a tap
+    downAt = null;
+    if (blocked(ev.target) || fly.to === 1) return;
+    const m = pickAt(ev.clientX, ev.clientY);
+    if (m && reducedMotion) { if (onPick) onPick(m.userData.pick); }
+    else if (m) startFly(m);
+  });
 
   return {
     setProgress(p) { state.progress = p; if (reducedMotion) frame(performance.now()); },
@@ -264,6 +330,7 @@ export function createScene(canvas, { reducedMotion = false, front = null, targe
       renderer.setClearColor(light ? 0xf4efe8 : 0x0a0a0b, 1);
       starMat.blending = light ? NormalBlending : AdditiveBlending; starMat.needsUpdate = true;
       starMat.uniforms.uLight.value = light ? 1 : 0;
+      dust.visible = !light;   // daytime sky: no stars
       city.setTheme(light);
     },
     spin(dx, dy) { drag.vx += dx * 0.004; drag.vy += dy * 0.004; },

@@ -430,3 +430,8 @@ html[data-theme="light"] .end__fill { -webkit-text-stroke-color: rgba(23,22,26,.
 html[data-theme="light"] .manifesto__text { text-shadow: 0 4px 30px rgba(244,239,232,.9); }
 .manifesto { background: linear-gradient(90deg, rgba(10,10,11,.75), rgba(10,10,11,0) 70%); }
 html[data-theme="light"] .manifesto { background: linear-gradient(90deg, rgba(244,239,232,.8), rgba(244,239,232,0) 70%); }
+
+/* clickable 3D screens */
+.screen-tip { position: fixed; left: 0; top: 0; z-index: 210; pointer-events: none; padding: 7px 12px; border-radius: 99px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #fff; background: var(--hot); opacity: 0; transition: opacity .25s; white-space: nowrap; }
+body.over-screen .screen-tip { opacity: 1; }
+body.over-screen, body.over-screen .grab { cursor: pointer; }
