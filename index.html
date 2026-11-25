@@ -22,6 +22,7 @@
   <meta name="twitter:card" content="summary_large_image" />
   <meta property="og:type" content="website" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="/assets/syne-latin-800-normal-EehdNYzx.woff2" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -53,10 +54,10 @@
     ]
   }
   </script>
-  <script type="module" crossorigin src="/assets/main-CQCs7AwV.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/style-DXqFYDXU.js">
+  <script type="module" crossorigin src="/assets/main-C9xdLUhK.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/style-4XuKAPGE.js">
   <link rel="modulepreload" crossorigin href="/assets/gsap-BFpFlt3B.js">
-  <link rel="stylesheet" crossorigin href="/assets/style-DDs9_Cl7.css">
+  <link rel="stylesheet" crossorigin href="/assets/style-iHIAQkm1.css">
 </head>
 <body class="is-loading">
   <a class="skip" href="#main">Skip to content</a>
@@ -73,7 +74,8 @@
     <a class="nav__logo" href="#top" aria-label="V1SION, back to top">V<span>1</span>SION</a>
     <a class="avail" href="/order.html"><i></i> Taking orders now</a>
     <nav aria-label="Main">
-      <ul class="nav__links">
+      <button class="nav__menu" type="button" aria-expanded="false" aria-controls="nav-links"><span class="nav__menu-t">Menu</span><i aria-hidden="true"></i></button>
+      <ul class="nav__links" id="nav-links">
         <li><a href="#work">Work</a></li>
         <li><a href="#services">Services</a></li>
         <li><a href="#how">Process</a></li>
@@ -145,7 +147,7 @@
         <li class="svc__item">
           <span class="svc__n mono">01 · Core</span>
           <h3>Websites for local businesses</h3>
-          <p>Cafés, bakeries, restaurants, barbershops and shops: be found, look trustworthy, show your menu, hours and how to reach you.</p>
+          <p>Cafés, bakeries, restaurants, barbershops and shops: be found, look trustworthy, show your menu, hours and how to reach you, in two languages if you need.</p>
           <p class="svc__for mono">You get a custom site that works on every phone</p>
         </li>
         <li class="svc__item">
@@ -162,15 +164,15 @@
         </li>
         <li class="svc__item">
           <span class="svc__n mono">04 · Add-on</span>
-          <h3>Admin panels &amp; tools</h3>
+          <h3>Admin panels &amp; web apps</h3>
           <p>Your own control panel to change menu, prices and hours, with staff logins and two-step sign-in. Client portals and small custom tools too.</p>
           <p class="svc__for mono">Quoted per project</p>
         </li>
         <li class="svc__item">
-          <span class="svc__n mono">05 · Included</span>
-          <h3>Two languages, phone-first</h3>
-          <p>Local language and English side by side, designed for the phone first because that is where most guests look you up.</p>
-          <p class="svc__for mono">Part of Business and Signature</p>
+          <span class="svc__n mono">05 · Custom</span>
+          <h3>Backend, APIs &amp; integrations</h3>
+          <p>Databases, sign-in, email notifications and connections to other services. The order system behind this site, with its brief assistant, client chat and file sharing, is my own work.</p>
+          <p class="svc__for mono">Quoted per project</p>
         </li>
         <li class="svc__item">
           <span class="svc__n mono">06 · Later</span>
@@ -213,10 +215,12 @@
         <p class="work__note">Three working concept sites, each designed for a real café as an unsolicited proposal. They are shown under project names until the owners agree to be named. Photos are licensed stock placeholders; everything else is real, running work.</p>
         <div class="reel__track">
           <article class="slide case" style="--bg:#1a120c">
+            <a class="shot-link" href="/work/layers.html" aria-label="Open the Layers case study">
             <figure class="shot shot--real">
               <img class="shot__desk" src="/work/layers-home.webp" width="1440" height="900" alt="Layers homepage: a 3D slice of honey cake next to the headline Layer by layer" loading="lazy" decoding="async" />
               <img class="shot__phone" src="/work/layers-phone.webp" width="560" height="1212" alt="The Layers homepage on a phone" loading="lazy" decoding="async" />
             </figure>
+            </a>
             <div class="slide__info">
               <p class="slide__n mono">01 — Riga · 2026</p>
               <p class="status mono"><i aria-hidden="true"></i>Concept · self-initiated · fully built</p>
@@ -228,14 +232,17 @@
                 <div><dt class="mono">What works</dt><dd>Cake pre-orders with pickup times, a staff admin with orders, products and stats, two-step sign-in, Latvian and English.</dd></div>
               </dl>
               <ul class="tags mono"><li>3D hero</li><li>Pre-orders</li><li>Admin</li><li>LV / EN</li></ul>
+              <a class="case__go" href="/work/layers.html"><span>Read the case study</span><span aria-hidden="true">→</span></a>
             </div>
           </article>
 
           <article class="slide case" style="--bg:#17130d">
+            <a class="shot-link" href="/work/grid.html" aria-label="Open the Grid case study">
             <figure class="shot shot--real">
               <img class="shot__desk" src="/work/grid-home.webp" width="1440" height="900" alt="Grid homepage: a 3D waffle with berries and cream under the headline Warm waffles, zero gluten" loading="lazy" decoding="async" />
               <img class="shot__phone" src="/work/grid-phone.webp" width="560" height="1212" alt="The Grid homepage on a phone" loading="lazy" decoding="async" />
             </figure>
+            </a>
             <div class="slide__info">
               <p class="slide__n mono">02 — Tallinn · 2026</p>
               <p class="status mono"><i aria-hidden="true"></i>Concept · self-initiated · fully built</p>
@@ -247,14 +254,17 @@
                 <div><dt class="mono">What works</dt><dd>Table booking with live free times, guests manage their own booking by private link, a waitlist, staff roles with two-step sign-in, menu editing and stats.</dd></div>
               </dl>
               <ul class="tags mono"><li>3D hero</li><li>Table booking</li><li>Waitlist</li><li>Staff roles</li></ul>
+              <a class="case__go" href="/work/grid.html"><span>Read the case study</span><span aria-hidden="true">→</span></a>
             </div>
           </article>
 
           <article class="slide case" style="--bg:#141213">
+            <a class="shot-link" href="/work/rye.html" aria-label="Open the Rye case study">
             <figure class="shot shot--real">
               <img class="shot__desk" src="/work/rye-home.webp" width="1440" height="900" alt="Rye homepage: Karelian pies on a plate inside a hand-pinched oval frame" loading="lazy" decoding="async" />
               <img class="shot__phone" src="/work/rye-phone.webp" width="560" height="1212" alt="The Rye homepage on a phone" loading="lazy" decoding="async" />
             </figure>
+            </a>
             <div class="slide__info">
               <p class="slide__n mono">03 — Helsinki · 2026</p>
               <p class="status mono"><i aria-hidden="true"></i>Concept · self-initiated · fully built</p>
@@ -266,6 +276,7 @@
                 <div><dt class="mono">What works</dt><dd>Orders for parties by the dozen, opening hours that know if the shop is open right now, an admin for orders, Finnish and English.</dd></div>
               </dl>
               <ul class="tags mono"><li>Hand-drawn system</li><li>Party orders</li><li>Admin</li><li>FI / EN</li></ul>
+              <a class="case__go" href="/work/rye.html"><span>Read the case study</span><span aria-hidden="true">→</span></a>
             </div>
           </article>
 
@@ -373,6 +384,12 @@
         </article>
 
       </div>
+      <a class="pk-custom" href="/order.html?package=Custom">
+        <span class="mono">04 · Custom</span>
+        <span class="pk-custom__t">Something bigger?</span>
+        <span class="pk-custom__k">A web app, an online shop, a portal or a site with many features: describe it and get a fixed quote for exactly that.</span>
+        <span class="pk-custom__go">Ask for a custom quote <span aria-hidden="true">→</span></span>
+      </a>
       <div class="addons">
         <p class="mono">Add-ons · fixed quote per project</p>
         <ul>
@@ -383,16 +400,8 @@
           <li>Extra languages &amp; pages</li>
           <li>Domain &amp; hosting setup</li>
         </ul>
-        <p class="addons__note">Texts and photos come from you; I help shape them. Hosting and the domain are paid by you directly to the provider, and I help you pick a simple, low-cost option.</p>
+        <p class="addons__note"><b>Timing</b> is agreed in your plan; work starts when your texts and photos are ready. Texts and photos come from you; I help shape them. Hosting and the domain are paid by you directly to the provider, and I help you pick a simple, low-cost option.</p>
       </div>
-    </section>
-
-    <section class="reviews" id="reviews" aria-labelledby="reviews-title" hidden>
-      <div class="section-head">
-        <p class="mono">(Kind words)</p>
-        <h2 id="reviews-title">What clients <em class="it">say</em></h2>
-      </div>
-      <div class="reviews__list" id="reviews-list"></div>
     </section>
 
     <section class="faq" id="faq" aria-labelledby="faq-title">
@@ -458,6 +467,6 @@
     <span>© 2026 V1SION Digital Studio · v1sion (Aleksandrs Masaitis) · aka v1sionMC</span>
     <a href="#top">Back to top ↑</a>
   </footer>
-
+
 </body>
 </html>
